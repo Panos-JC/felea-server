@@ -14,6 +14,11 @@ import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+import { WorkExperience } from "./entities/WorkExperience";
+import { WorkExperienceResolver } from "./resolvers/workExperience";
+import { Industry } from "./entities/Industry";
+import { IndustryResolver } from "./resolvers/industry";
+import { MentorResolver } from "./resolvers/mentor";
 
 const main = async () => {
   const conn = await createConnection({
@@ -23,7 +28,15 @@ const main = async () => {
     password: "postgres",
     logging: !__prod__,
     synchronize: !__prod__,
-    entities: [Users, Mentor, Type, Individual],
+    entities: [
+      Users,
+      Mentor,
+      Type,
+      Individual,
+      WorkExperience,
+      Industry,
+      // WorkExperienceIndustries,
+    ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
   });
@@ -65,7 +78,12 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UsersResolver],
+      resolvers: [
+        UsersResolver,
+        WorkExperienceResolver,
+        IndustryResolver,
+        MentorResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({ req, res, redis }),
