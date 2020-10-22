@@ -1,6 +1,34 @@
-import { Arg, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Int,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { getConnection } from "typeorm";
 import { Mentor } from "../entities/Mentor";
+import { isAuth } from "../middleware/isAuth";
+import { MyContext } from "../types";
+import { MentorDetailsInput } from "./inputTypes/MentorDetailsInput";
+
+@ObjectType()
+class ErrorMessage {
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class MentorResponse {
+  @Field(() => ErrorMessage, { nullable: true })
+  error?: ErrorMessage;
+
+  @Field(() => Mentor, { nullable: true })
+  mentor?: Mentor;
+}
 
 @Resolver()
 export class MentorResolver {
@@ -17,24 +45,63 @@ export class MentorResolver {
     return result!;
   }
 
-  @Mutation(() => Mentor)
+  @Query(() => [Mentor])
+  async mentors(): Promise<Mentor[]> {
+    const mentors = await Mentor.find({});
+
+    console.log(mentors);
+    return mentors;
+  }
+
+  @Mutation(() => MentorResponse)
+  // @UseMiddleware(isAuth)
+  async setMentorDetails(
+    @Arg("options", () => MentorDetailsInput) options: MentorDetailsInput,
+    @Ctx() { req }: MyContext
+  ): Promise<MentorResponse> {
+    // get mentor by user id
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
+
+    if (mentor) {
+      mentor.firstName = options.firstName;
+      mentor.lastName = options.lastName;
+      mentor.title = options.title;
+      mentor.rate = options.rate;
+      mentor.location = options.location;
+      mentor.languages = options.languages;
+
+      const updatedMentor = await Mentor.save(mentor);
+
+      return { mentor: updatedMentor };
+    } else {
+      return {
+        error: { message: "Something went wrong while setting details" },
+      };
+    }
+  }
+
+  @Mutation(() => MentorResponse)
   async setBio(
-    @Arg("mentorId", () => Int) mentorId: number,
-    @Arg("bio", () => String) bio: string
-  ) {
-    // const mentor = await getConnection()
-    //   .getRepository(Mentor)
-    //   .createQueryBuilder("mentor")
-    //   .update<Mentor>(Mentor, { bio })
-    //   .where("mentor.id = :mentorId", { mentorId })
-    //   .execute();
+    @Arg("bio", () => String) bio: string,
+    @Ctx() { req }: MyContext
+  ): Promise<MentorResponse> {
+    // get mentor by user id
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
 
-    const mentor = await Mentor.findOne({ id: mentorId });
-    mentor!.bio = bio;
+    if (mentor) {
+      mentor.bio = bio;
 
-    const updatedMentor = await Mentor.save(mentor!);
+      const updatedMentor = await Mentor.save(mentor);
 
-    console.log(updatedMentor);
-    return updatedMentor;
+      return { mentor: updatedMentor };
+    } else {
+      return {
+        error: { message: "Something went wrong while setting details" },
+      };
+    }
   }
 }
