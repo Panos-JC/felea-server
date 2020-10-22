@@ -13,7 +13,7 @@ import { validateRegister } from "../utils/validateRegister";
 import { RegisterInput } from "./inputTypes/RegisterInput";
 import argon2 from "argon2";
 import { Individual } from "../entities/Individual";
-import { Type } from "../entities/Type";
+// import { Type } from "../entities/Type";
 import { Mentor } from "../entities/Mentor";
 import { MyContext } from "../types";
 import { COOKIE_NAME } from "../constants";
@@ -43,10 +43,7 @@ export class UsersResolver {
       return null;
     }
 
-    const _user = await Users.findOne(
-      { id: req.session.userId },
-      { relations: ["type"] }
-    );
+    const _user = await Users.findOne({ id: req.session.userId });
 
     if (!_user) {
       console.log("ME QUERY ERROR");
@@ -56,7 +53,7 @@ export class UsersResolver {
     const user = await getConnection()
       .getRepository(Users)
       .createQueryBuilder("u")
-      .innerJoinAndSelect(`u.${_user.type.name}`, _user.type.name)
+      .innerJoinAndSelect(`u.${_user.type}`, _user.type)
       .where("u.id = :id", { id: _user.id })
       .getOne();
 
@@ -96,19 +93,11 @@ export class UsersResolver {
     // execute queries in a transaction
     const user = await getManager().transaction(
       async (transactionalEntityManager) => {
-        // get individual type, create it if not exists
-        let type = await Type.findOne({ name: "individual" });
-        if (!type) {
-          type = new Type();
-          type.name = "individual";
-          await transactionalEntityManager.save(type);
-        }
-
         // create user
         const user = new Users();
         user.email = options.email;
         user.password = hashedPassword;
-        user.type = type;
+        user.type = "individual";
         await transactionalEntityManager.save(user);
 
         // create individual
@@ -166,19 +155,11 @@ export class UsersResolver {
     // execute queries in a transaction
     const user = await getManager().transaction(
       async (transactionalEntityManager) => {
-        // get mentor type, create it if not exists
-        let type = await Type.findOne({ name: "mentor" });
-        if (!type) {
-          type = new Type();
-          type.name = "mentor";
-          await transactionalEntityManager.save(type);
-        }
-
         // create user
         const user = new Users();
         user.email = options.email;
         user.password = hashedPassword;
-        user.type = type;
+        user.type = "mentor";
         await transactionalEntityManager.save(user);
 
         // create mentor
@@ -212,10 +193,9 @@ export class UsersResolver {
     @Arg("email") email: string,
     @Arg("password") password: string,
     @Ctx() { req }: MyContext
-  ) {
+  ): Promise<UserResponse> {
     // check if user exists
-    const _user = await Users.findOne({ email }, { relations: ["type"] });
-    console.log(_user?.type.name);
+    const _user = await Users.findOne({ email });
 
     if (!_user) {
       return {
@@ -245,7 +225,7 @@ export class UsersResolver {
     const user = await getConnection()
       .getRepository(Users)
       .createQueryBuilder("u")
-      .innerJoinAndSelect(`u.${_user.type.name}`, _user.type.name)
+      .innerJoinAndSelect(`u.${_user.type}`, _user.type)
       .where("u.id = :id", { id: _user.id })
       .getOne();
 

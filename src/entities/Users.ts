@@ -12,7 +12,6 @@ import {
 } from "typeorm";
 import { Individual } from "./Individual";
 import { Mentor } from "./Mentor";
-import { Type } from "./Type";
 
 @ObjectType()
 @Entity()
@@ -32,6 +31,15 @@ export class Users extends BaseEntity {
   @Column({ default: false })
   activated!: boolean;
 
+  @Field()
+  @Column()
+  type!: string;
+
+  @Field()
+  @Column({ default: "https://avatars.dicebear.com/api/jdenticon/felea.svg" })
+  avatar!: string;
+
+  // relations
   @Field(() => Mentor, { nullable: true })
   @OneToOne(() => Mentor, (mentor) => mentor.user)
   mentor: Mentor;
@@ -39,18 +47,6 @@ export class Users extends BaseEntity {
   @Field(() => Individual, { nullable: true })
   @OneToOne(() => Individual, (individual) => individual.user)
   individual: Individual;
-
-  // @Field()
-  // @Column({ default: false })
-  // premium!: boolean;
-
-  @Field()
-  @Column({ default: "https://avatars.dicebear.com/api/jdenticon/felea.svg" })
-  avatar!: string;
-
-  @ManyToOne(() => Type, (type) => type.users)
-  @JoinColumn({ name: "type_id" })
-  type: Type;
 
   // created at & updated at
   @Field(() => String)

@@ -3,7 +3,6 @@ import express from "express";
 import { createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Mentor } from "./entities/Mentor";
-import { Type } from "./entities/Type";
 import { Users } from "./entities/Users";
 import path from "path";
 import { ApolloServer } from "apollo-server-express";
@@ -23,20 +22,12 @@ import { MentorResolver } from "./resolvers/mentor";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
-    database: "feleatest",
+    database: "feleatest2",
     username: "postgres",
     password: "postgres",
     logging: !__prod__,
     synchronize: !__prod__,
-    entities: [
-      Users,
-      Mentor,
-      Type,
-      Individual,
-      WorkExperience,
-      Industry,
-      // WorkExperienceIndustries,
-    ],
+    entities: [Users, Mentor, Individual, WorkExperience, Industry],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
   });
