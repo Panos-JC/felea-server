@@ -187,7 +187,7 @@ export class UsersResolver {
     return { user };
   }
 
-  // === REGISTER MENTOR MUTATION ===
+  // === REGISTER ADMIN MUTATION ===
   @Mutation(() => UserResponse)
   async registerAdmin(
     @Arg("options", () => RegisterInput) options: RegisterInput
