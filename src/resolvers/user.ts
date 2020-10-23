@@ -17,6 +17,7 @@ import { Individual } from "../entities/Individual";
 import { Mentor } from "../entities/Mentor";
 import { MyContext } from "../types";
 import { COOKIE_NAME } from "../constants";
+import { Admin } from "../entities/Admin";
 
 @ObjectType()
 class FieldError {
@@ -180,6 +181,67 @@ export class UsersResolver {
         console.log(mentorUser);
 
         return mentorUser;
+      }
+    );
+
+    return { user };
+  }
+
+  // === REGISTER MENTOR MUTATION ===
+  @Mutation(() => UserResponse)
+  async registerAdmin(
+    @Arg("options", () => RegisterInput) options: RegisterInput
+  ): Promise<UserResponse> {
+    // validate options
+    const errors = validateRegister(options);
+
+    if (errors) return { errors };
+
+    // check if email already exists
+    const result = await Users.findOne({ email: options.email });
+
+    if (result) {
+      return {
+        errors: [
+          {
+            field: "email",
+            message: "Email already exists",
+          },
+        ],
+      };
+    }
+
+    //hash password
+    const hashedPassword = await argon2.hash(options.password);
+
+    // execute queries in a transaction
+    const user = await getManager().transaction(
+      async (transactionalEntityManager) => {
+        // create user
+        const user = new Users();
+        user.email = options.email;
+        user.password = hashedPassword;
+        user.type = "admin";
+        await transactionalEntityManager.save(user);
+
+        // create admin
+        const admin = new Admin();
+        admin.firstName = options.firstName;
+        admin.lastName = options.lastName;
+        admin.user = user;
+        await transactionalEntityManager.save(admin);
+
+        // get User with Admin info
+        const adminUser = await transactionalEntityManager
+          .getRepository(Users)
+          .createQueryBuilder("u")
+          .where("u.id = :id", { id: user.id })
+          .innerJoinAndSelect("u.admin", "admin")
+          .getOne();
+
+        console.log(adminUser);
+
+        return adminUser;
       }
     );
 

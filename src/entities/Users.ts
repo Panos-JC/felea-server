@@ -4,12 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Admin } from "./Admin";
 import { Individual } from "./Individual";
 import { Mentor } from "./Mentor";
 
@@ -47,6 +46,10 @@ export class Users extends BaseEntity {
   @Field(() => Individual, { nullable: true })
   @OneToOne(() => Individual, (individual) => individual.user)
   individual: Individual;
+
+  @Field(() => Admin, { nullable: true })
+  @OneToOne(() => Admin, (admin) => admin.user)
+  admin: Admin;
 
   // created at & updated at
   @Field(() => String)

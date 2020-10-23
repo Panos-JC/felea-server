@@ -22,6 +22,7 @@ import { Skill } from "./entities/Skill";
 import { Expertise } from "./entities/Expertise";
 import { SkillResolver } from "./resolvers/skill";
 import { ExpertiseResolver } from "./resolvers/expertise";
+import { Admin } from "./entities/Admin";
 
 const main = async () => {
   const conn = await createConnection({
@@ -35,6 +36,7 @@ const main = async () => {
       Users,
       Mentor,
       Individual,
+      Admin,
       WorkExperience,
       Industry,
       Skill,
