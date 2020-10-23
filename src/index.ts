@@ -18,6 +18,10 @@ import { WorkExperienceResolver } from "./resolvers/workExperience";
 import { Industry } from "./entities/Industry";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor";
+import { Skill } from "./entities/Skill";
+import { Expertise } from "./entities/Expertise";
+import { SkillResolver } from "./resolvers/skill";
+import { ExpertiseResolver } from "./resolvers/expertise";
 
 const main = async () => {
   const conn = await createConnection({
@@ -27,7 +31,15 @@ const main = async () => {
     password: "postgres",
     logging: !__prod__,
     synchronize: !__prod__,
-    entities: [Users, Mentor, Individual, WorkExperience, Industry],
+    entities: [
+      Users,
+      Mentor,
+      Individual,
+      WorkExperience,
+      Industry,
+      Skill,
+      Expertise,
+    ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
   });
@@ -74,6 +86,8 @@ const main = async () => {
         WorkExperienceResolver,
         IndustryResolver,
         MentorResolver,
+        SkillResolver,
+        ExpertiseResolver,
       ],
       validate: false,
     }),
