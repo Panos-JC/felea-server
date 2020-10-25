@@ -47,7 +47,7 @@ export class MentorResolver {
 
   @Query(() => [Mentor])
   async mentors(): Promise<Mentor[]> {
-    const mentors = await Mentor.find({});
+    const mentors = await Mentor.find({ relations: ["user"] });
 
     console.log(mentors);
     return mentors;

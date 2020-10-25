@@ -24,6 +24,11 @@ export class Individual extends BaseEntity {
   @Column({ name: "last_name" })
   lastName!: string;
 
+  @Field()
+  @Column({ default: false })
+  premium!: boolean;
+
+  @Field(() => Users)
   @OneToOne(() => Users, (user) => user.individual)
   @JoinColumn({ name: "user_id" })
   user: Users;
