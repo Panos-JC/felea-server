@@ -1,30 +1,32 @@
-import "reflect-metadata";
-import express from "express";
-import { createConnection } from "typeorm";
-import { COOKIE_NAME, __prod__ } from "./constants";
-import { Mentor } from "./entities/Mentor";
-import { Users } from "./entities/Users";
-import path from "path";
 import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from "type-graphql";
-import { UsersResolver } from "./resolvers/user";
-import { Individual } from "./entities/Individual";
-import Redis from "ioredis";
-import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
-import { WorkExperience } from "./entities/WorkExperience";
-import { WorkExperienceResolver } from "./resolvers/workExperience";
+import express from "express";
+import session from "express-session";
+import Redis from "ioredis";
+import path from "path";
+import "reflect-metadata";
+import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
+import { COOKIE_NAME, __prod__ } from "./constants";
+import { Admin } from "./entities/Admin";
+import { Expertise } from "./entities/Expertise";
+import { Individual } from "./entities/Individual";
 import { Industry } from "./entities/Industry";
+import { Mentor } from "./entities/Mentor";
+import { Session } from "./entities/Session";
+import { Skill } from "./entities/Skill";
+import { Users } from "./entities/Users";
+import { WorkExperience } from "./entities/WorkExperience";
+import { AdminResolver } from "./resolvers/admin";
+import { ExpertiseResolver } from "./resolvers/expertise";
+import { IndividualResolver } from "./resolvers/individual";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor";
-import { Skill } from "./entities/Skill";
-import { Expertise } from "./entities/Expertise";
+import { SessionResolver } from "./resolvers/session";
 import { SkillResolver } from "./resolvers/skill";
-import { ExpertiseResolver } from "./resolvers/expertise";
-import { Admin } from "./entities/Admin";
-import { IndividualResolver } from "./resolvers/individual";
-import { AdminResolver } from "./resolvers/admin";
+import { UsersResolver } from "./resolvers/user";
+import { WorkExperienceResolver } from "./resolvers/workExperience";
 
 const main = async () => {
   const conn = await createConnection({
@@ -43,6 +45,7 @@ const main = async () => {
       Industry,
       Skill,
       Expertise,
+      Session,
     ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
@@ -94,6 +97,7 @@ const main = async () => {
         AdminResolver,
         SkillResolver,
         ExpertiseResolver,
+        SessionResolver,
       ],
       validate: false,
     }),
