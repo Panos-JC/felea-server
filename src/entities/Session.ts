@@ -30,7 +30,7 @@ export class Session extends BaseEntity {
   individual: Individual;
 
   @Field(() => Mentor)
-  @ManyToOne(() => Mentor)
+  @ManyToOne(() => Mentor, (mentor) => mentor.sessions)
   @JoinColumn({ name: "mentor_id" })
   mentor: Mentor;
 

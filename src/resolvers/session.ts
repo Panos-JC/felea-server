@@ -13,6 +13,7 @@ import { Individual } from "../entities/Individual";
 import { Mentor } from "../entities/Mentor";
 import { Session } from "../entities/Session";
 import { isAdminAuth } from "../middleware/isAdminAuth";
+import { isMentorAuth } from "../middleware/isMentorAuth";
 import { MyContext } from "../types";
 import { SessionInput } from "./inputTypes/SessionInput";
 
@@ -90,15 +91,32 @@ export class SessionResolver {
         date: "DESC",
       },
     });
+  }
 
-    // return await Session.find({
-    //   join: {
-    //     alias: "session",
-    //     innerJoinAndSelect: {
-    //       individual: "session.individual",
+  @Query(() => [Session])
+  @UseMiddleware(isMentorAuth)
+  async mentorSessions(@Ctx() { req }: MyContext) {
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
 
-    //     },
-    //   },
-    // });
+    if (!mentor) {
+      console.log("NO MENTOR");
+      return "no mentor";
+    }
+
+    const sessions = await Session.find({
+      where: { mentor: { id: mentor.id } },
+      join: {
+        alias: "session",
+        innerJoinAndSelect: {
+          mentor: "session.mentor",
+          individual: "session.individual",
+        },
+      },
+    });
+
+    console.log(sessions);
+    return sessions;
   }
 }

@@ -8,6 +8,8 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Expertise } from "./Expertise";
+import { Session } from "./Session";
 import { Users } from "./Users";
 import { WorkExperience } from "./WorkExperience";
 
@@ -47,7 +49,7 @@ export class Mentor extends BaseEntity {
   rate: string;
 
   // Relations
-  @Field()
+  @Field(() => Users)
   @OneToOne(() => Users, (user) => user.mentor)
   @JoinColumn({ name: "user_id" })
   user: Users;
@@ -55,4 +57,16 @@ export class Mentor extends BaseEntity {
   @Field(() => WorkExperience)
   @OneToMany(() => WorkExperience, (workExperience) => workExperience.mentor)
   workExperience: WorkExperience[];
+
+  @Field(() => [Session])
+  @OneToMany(() => Session, (session) => session.mentor)
+  sessions: Session[];
+
+  @Field(() => [Expertise])
+  @OneToMany(() => Expertise, (expertise) => expertise.mentor)
+  expertises: Expertise[];
+
+  // Count
+  @Field(() => Int, { nullable: true })
+  sessionCount: number;
 }

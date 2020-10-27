@@ -46,10 +46,19 @@ export class MentorResolver {
   }
 
   @Query(() => [Mentor])
-  async mentors(): Promise<Mentor[]> {
-    const mentors = await Mentor.find({ relations: ["user"] });
+  async mentors() {
+    // get mentor info plus sessions count
+    const mentors = await getConnection()
+      .manager.createQueryBuilder(Mentor, "mentor")
+      .loadRelationCountAndMap("mentor.sessionCount", "mentor.sessions")
+      .innerJoinAndSelect("mentor.user", "users")
+      .innerJoinAndSelect("mentor.sessions", "session")
+      .innerJoinAndSelect("mentor.expertises", "expertise")
+      .innerJoinAndSelect("expertise.skill", "skill")
+      .getMany();
 
     console.log(mentors);
+
     return mentors;
   }
 

@@ -29,8 +29,8 @@ export class Expertise extends BaseEntity {
   @JoinColumn({ name: "skill_id" })
   skill: Skill;
 
-  @Field()
-  @ManyToOne(() => Mentor)
+  @Field(() => Mentor)
+  @ManyToOne(() => Mentor, (mentor) => mentor.expertises)
   @JoinColumn({ name: "mentor_id" })
   mentor: Mentor;
 
