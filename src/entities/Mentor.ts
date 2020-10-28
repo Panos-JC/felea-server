@@ -54,7 +54,7 @@ export class Mentor extends BaseEntity {
   @JoinColumn({ name: "user_id" })
   user: Users;
 
-  @Field(() => WorkExperience)
+  @Field(() => [WorkExperience])
   @OneToMany(() => WorkExperience, (workExperience) => workExperience.mentor)
   workExperience: WorkExperience[];
 

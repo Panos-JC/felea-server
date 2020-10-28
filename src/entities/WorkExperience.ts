@@ -45,7 +45,7 @@ export class WorkExperience extends BaseEntity {
   @Column()
   untill!: string;
 
-  @Field(() => [Industry])
+  @Field(() => [Industry], { nullable: true })
   @ManyToMany(() => Industry)
   @JoinTable()
   industries: Industry[];

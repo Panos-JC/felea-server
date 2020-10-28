@@ -46,16 +46,26 @@ export class MentorResolver {
   }
 
   @Query(() => [Mentor])
-  async mentors() {
+  async mentors(
+    @Arg("skills", () => [String]) skills: string[],
+    @Arg("industries", () => [String]) industries: string[]
+  ) {
     // get mentor info plus sessions count
-    const mentors = await getConnection()
+    const _mentors = getConnection()
       .manager.createQueryBuilder(Mentor, "mentor")
       .loadRelationCountAndMap("mentor.sessionCount", "mentor.sessions")
-      .innerJoinAndSelect("mentor.user", "users")
-      .innerJoinAndSelect("mentor.sessions", "session")
-      .innerJoinAndSelect("mentor.expertises", "expertise")
-      .innerJoinAndSelect("expertise.skill", "skill")
-      .getMany();
+      .leftJoinAndSelect("mentor.user", "users")
+      .leftJoinAndSelect("mentor.sessions", "session")
+      .leftJoinAndSelect("mentor.expertises", "expertise")
+      .leftJoinAndSelect("mentor.workExperience", "work_experience")
+      .leftJoinAndSelect("work_experience.industries", "industry")
+      .leftJoinAndSelect("expertise.skill", "skill");
+    if (skills.length > 0)
+      _mentors.where("skill.name IN (:...names)", { names: skills });
+    if (industries.length > 0)
+      _mentors.where("industry.name IN (:...names)", { names: industries });
+
+    const mentors = await _mentors.getMany();
 
     console.log(mentors);
 
