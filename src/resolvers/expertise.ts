@@ -1,3 +1,4 @@
+import e from "express";
 import {
   Arg,
   Ctx,
@@ -9,6 +10,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { getConnection } from "typeorm";
 import { Expertise } from "../entities/Expertise";
 import { Mentor } from "../entities/Mentor";
 import { Skill } from "../entities/Skill";
@@ -22,6 +24,15 @@ class ExpertiseResponse {
 
   @Field(() => Expertise, { nullable: true })
   expertise?: Expertise;
+}
+
+@ObjectType()
+class DeleteResponse {
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  deleted?: boolean;
 }
 
 @Resolver()
@@ -57,7 +68,24 @@ export class ExpertiseResolver {
   }
 
   @Query(() => [Expertise])
-  async expertises(
+  async expertises(@Ctx() { req }: MyContext): Promise<Expertise[]> {
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
+
+    if (!mentor) throw "Mentor not found";
+
+    const expertises = await Expertise.find({
+      where: { mentor: { id: mentor.id } },
+      relations: ["skill"],
+    });
+
+    console.log(expertises);
+    return expertises;
+  }
+
+  @Query(() => [Expertise])
+  async expertisesById(
     @Arg("mentorId", () => Int) mentorId: number
   ): Promise<Expertise[]> {
     const expertises = await Expertise.find({
@@ -66,5 +94,23 @@ export class ExpertiseResolver {
     });
     console.log(expertises);
     return expertises;
+  }
+
+  @Mutation(() => DeleteResponse)
+  async deleteExpertise(
+    @Arg("id", () => Int) id: number
+  ): Promise<DeleteResponse> {
+    const result = await getConnection()
+      .createQueryBuilder()
+      .delete()
+      .from(Expertise)
+      .where("id = :id", { id })
+      .execute();
+
+    if (result) {
+      return { deleted: true };
+    } else {
+      return { errorMsg: "Something happened" };
+    }
   }
 }
