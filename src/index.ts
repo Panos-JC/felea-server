@@ -14,6 +14,7 @@ import { Expertise } from "./entities/Expertise";
 import { Individual } from "./entities/Individual";
 import { Industry } from "./entities/Industry";
 import { Mentor } from "./entities/Mentor";
+import { Review } from "./entities/Review";
 import { Session } from "./entities/Session";
 import { Skill } from "./entities/Skill";
 import { Users } from "./entities/Users";
@@ -23,6 +24,7 @@ import { ExpertiseResolver } from "./resolvers/expertise";
 import { IndividualResolver } from "./resolvers/individual";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor";
+import { ReviewResolver } from "./resolvers/review";
 import { SessionResolver } from "./resolvers/session";
 import { SkillResolver } from "./resolvers/skill";
 import { UsersResolver } from "./resolvers/user";
@@ -46,6 +48,7 @@ const main = async () => {
       Skill,
       Expertise,
       Session,
+      Review,
     ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
@@ -98,6 +101,7 @@ const main = async () => {
         SkillResolver,
         ExpertiseResolver,
         SessionResolver,
+        ReviewResolver,
       ],
       validate: false,
     }),
