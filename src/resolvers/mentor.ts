@@ -11,9 +11,10 @@ import {
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { Mentor } from "../entities/Mentor";
-import { isAuth } from "../middleware/isAuth";
+import { isMentorAuth } from "../middleware/isMentorAuth";
 import { MyContext } from "../types";
 import { MentorDetailsInput } from "./inputTypes/MentorDetailsInput";
+import { SocialLinksInput } from "./inputTypes/socialLinksInput";
 
 @ObjectType()
 class ErrorMessage {
@@ -99,6 +100,35 @@ export class MentorResolver {
         error: { message: "Something went wrong while setting details" },
       };
     }
+  }
+
+  @Mutation(() => MentorResponse)
+  @UseMiddleware(isMentorAuth)
+  async setMentorLinks(
+    @Arg("links", () => SocialLinksInput) links: SocialLinksInput,
+    @Ctx() { req }: MyContext
+  ): Promise<MentorResponse> {
+    // Get mentor
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
+
+    if (!mentor) {
+      return { error: { message: "Something went wrong, please try again." } };
+    }
+
+    // Update links if they exist as arguments
+    links.facebook && (mentor.facebook = links.facebook);
+    links.instagram && (mentor.instagram = links.instagram);
+    links.medium && (mentor.medium = links.medium);
+    links.twitter && (mentor.twitter = links.twitter);
+    links.linkedin && (mentor.linkedin = links.linkedin);
+
+    const updatedMentor = await Mentor.save(mentor);
+
+    console.log(updatedMentor);
+
+    return { mentor: updatedMentor };
   }
 
   @Mutation(() => MentorResponse)

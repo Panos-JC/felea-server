@@ -48,6 +48,26 @@ export class Mentor extends BaseEntity {
   @Column({ nullable: true })
   rate: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  medium: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  facebook: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  linkedin: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  twitter: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  instagram: string;
+
   // Relations
   @Field(() => Users)
   @OneToOne(() => Users, (user) => user.mentor)
