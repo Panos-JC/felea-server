@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ApolloServer } from "apollo-server-express";
 import connectRedis from "connect-redis";
 import cors from "cors";
@@ -15,7 +16,6 @@ import { Individual } from "./entities/Individual";
 import { Industry } from "./entities/Industry";
 import { Mentor } from "./entities/Mentor";
 import { Review } from "./entities/Review";
-import { Session } from "./entities/Session";
 import { Skill } from "./entities/Skill";
 import { Users } from "./entities/Users";
 import { WorkExperience } from "./entities/WorkExperience";
@@ -25,10 +25,11 @@ import { IndividualResolver } from "./resolvers/individual";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor";
 import { ReviewResolver } from "./resolvers/review";
-import { SessionResolver } from "./resolvers/session";
 import { SkillResolver } from "./resolvers/skill";
 import { UsersResolver } from "./resolvers/user";
 import { WorkExperienceResolver } from "./resolvers/workExperience";
+import { SessionRequest } from "./entities/SessionRequest";
+import { SessionRequestResolver } from "./resolvers/sessionRequest";
 
 const main = async () => {
   const conn = await createConnection({
@@ -47,8 +48,8 @@ const main = async () => {
       Industry,
       Skill,
       Expertise,
-      Session,
       Review,
+      SessionRequest,
     ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
@@ -100,8 +101,8 @@ const main = async () => {
         AdminResolver,
         SkillResolver,
         ExpertiseResolver,
-        SessionResolver,
         ReviewResolver,
+        SessionRequestResolver,
       ],
       validate: false,
     }),
