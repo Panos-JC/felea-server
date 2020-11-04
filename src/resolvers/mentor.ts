@@ -31,19 +31,42 @@ class MentorResponse {
   mentor?: Mentor;
 }
 
+@ObjectType()
+class MentorInfoResponse {
+  @Field(() => Number)
+  avg: Mentor;
+
+  @Field(() => Mentor)
+  info: Mentor;
+}
+
 @Resolver()
 export class MentorResolver {
-  @Query(() => Mentor)
-  async mentor(@Arg("mentorId", () => Int) mentorId: number): Promise<Mentor> {
+  @Query(() => MentorInfoResponse)
+  async mentor(
+    @Arg("mentorId", () => Int) mentorId: number
+  ): Promise<MentorInfoResponse> {
     const result = await getConnection()
       .getRepository(Mentor)
       .createQueryBuilder("mentor")
       .innerJoinAndSelect("mentor.user", "users")
+      .innerJoinAndSelect("mentor.reviews", "review")
+      .innerJoinAndSelect("mentor.expertises", "expertise")
+      .innerJoinAndSelect("mentor.workExperience", "workExperience")
+      .innerJoinAndSelect("workExperience.industries", "industry")
+      .innerJoinAndSelect("expertise.skill", "skill")
       .where("mentor.id = :id", { id: mentorId })
       .getOne();
 
-    console.log(result);
-    return result!;
+    const { avg } = await getConnection()
+      .getRepository(Mentor)
+      .createQueryBuilder("mentor")
+      .innerJoinAndSelect("mentor.reviews", "review")
+      .select("AVG(review.rating)", "avg")
+      .where("mentor.id = :id", { id: mentorId })
+      .getRawOne();
+
+    return { avg, info: result! };
   }
 
   @Query(() => [Mentor])
@@ -54,9 +77,7 @@ export class MentorResolver {
     // get mentor info plus sessions count
     const _mentors = getConnection()
       .manager.createQueryBuilder(Mentor, "mentor")
-      .loadRelationCountAndMap("mentor.sessionCount", "mentor.sessions")
       .leftJoinAndSelect("mentor.user", "users")
-      .leftJoinAndSelect("mentor.sessions", "session")
       .leftJoinAndSelect("mentor.expertises", "expertise")
       .leftJoinAndSelect("mentor.workExperience", "work_experience")
       .leftJoinAndSelect("work_experience.industries", "industry")
