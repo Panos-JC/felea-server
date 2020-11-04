@@ -31,7 +31,7 @@ export class Review extends BaseEntity {
 
   // Relations
   @Field(() => Mentor)
-  @ManyToOne(() => Mentor)
+  @ManyToOne(() => Mentor, (mentor) => mentor.reviews)
   mentor!: Mentor;
 
   @Field(() => Individual)

@@ -9,7 +9,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Expertise } from "./Expertise";
-import { Session } from "./Session";
+import { Review } from "./Review";
+import { SessionRequest } from "./SessionRequest";
 import { Users } from "./Users";
 import { WorkExperience } from "./WorkExperience";
 
@@ -78,13 +79,17 @@ export class Mentor extends BaseEntity {
   @OneToMany(() => WorkExperience, (workExperience) => workExperience.mentor)
   workExperience: WorkExperience[];
 
-  @Field(() => [Session])
-  @OneToMany(() => Session, (session) => session.mentor)
-  sessions: Session[];
-
   @Field(() => [Expertise])
   @OneToMany(() => Expertise, (expertise) => expertise.mentor)
   expertises: Expertise[];
+
+  @Field(() => [Review])
+  @OneToMany(() => Review, (review) => review.mentor)
+  reviews: Review[];
+
+  @Field(() => [SessionRequest])
+  @OneToMany(() => SessionRequest, (SessionRequest) => SessionRequest.mentor)
+  sessionRequests: SessionRequest[];
 
   // Count
   @Field(() => Int, { nullable: true })

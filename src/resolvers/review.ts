@@ -12,7 +12,7 @@ import {
 import { Individual } from "../entities/Individual";
 import { Mentor } from "../entities/Mentor";
 import { Review } from "../entities/Review";
-import { Session } from "../entities/Session";
+import { SessionRequest } from "../entities/SessionRequest";
 import { isAuth } from "../middleware/isAuth";
 import { isIndividualAuth } from "../middleware/isIndividualAuth";
 import { MyContext } from "../types";
@@ -60,7 +60,9 @@ export class ReviewResolver {
       return { errorMsg: "You already left a review." };
     }
 
-    const session = await Session.find({ where: { mentor, individual } });
+    const session = await SessionRequest.find({
+      where: { mentor, individual },
+    });
 
     if (session.length === 0) {
       return { errorMsg: "You have not completed a session with this mentor." };

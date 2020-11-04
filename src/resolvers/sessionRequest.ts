@@ -13,6 +13,7 @@ import { getConnection } from "typeorm";
 import { Individual } from "../entities/Individual";
 import { Mentor } from "../entities/Mentor";
 import { SessionRequest } from "../entities/SessionRequest";
+import { isAdminAuth } from "../middleware/isAdminAuth";
 import { isMentorAuth } from "../middleware/isMentorAuth";
 import { stripe } from "../stripe";
 import { MyContext } from "../types";
@@ -37,6 +38,9 @@ class RequestsTypes {
 
   @Field(() => [SessionRequest])
   declined: SessionRequest[];
+
+  @Field(() => [SessionRequest])
+  completed: SessionRequest[];
 }
 
 @ObjectType()
@@ -58,6 +62,48 @@ class RequestActionResponse {
 
   @Field(() => Boolean, { nullable: true })
   declined?: boolean;
+}
+
+@ObjectType()
+class SessionRequestByIdData {
+  @Field(() => Individual)
+  individual: Individual;
+
+  @Field(() => Mentor)
+  mentor: Mentor;
+
+  @Field(() => Number)
+  ammount: number;
+
+  @Field(() => String)
+  status: string;
+
+  @Field(() => String)
+  paymentStatus: string;
+
+  @Field(() => Date)
+  date: Date;
+
+  @Field(() => String)
+  message: string;
+}
+
+@ObjectType()
+class SessionRequestByIdResponse {
+  @Field(() => SessionRequestByIdData, { nullable: true })
+  data?: SessionRequestByIdData;
+
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
+}
+
+@ObjectType()
+class SetRequestCompleteResponse {
+  @Field(() => Boolean, { nullable: true })
+  complete?: boolean;
+
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
 }
 
 @Resolver()
@@ -99,6 +145,12 @@ export class SessionRequestResolver {
         await individual.save();
       }
 
+      if (!individual.stripePaymentMethodId) {
+        individual.stripePaymentMethodId = input.token;
+        await individual.save();
+      }
+
+      // Create payment intent
       const paymentIntent = await stripe.paymentIntents.create({
         amount: input.ammount,
         currency: "eur",
@@ -171,11 +223,22 @@ export class SessionRequestResolver {
       .andWhere("sessionRequest.status = 'declined'")
       .getMany();
 
-    if (!pending || !accepted || !declined) {
+    const completed = await getConnection()
+      .getRepository(SessionRequest)
+      .createQueryBuilder("sessionRequest")
+      .innerJoinAndSelect("sessionRequest.mentor", "mentor")
+      .innerJoinAndSelect("sessionRequest.individual", "individual")
+      .innerJoinAndSelect("individual.user", "individualUser")
+      .innerJoinAndSelect("mentor.user", "mentorUser")
+      .where("mentorUser.id = :id", { id: req.session.userId })
+      .andWhere("sessionRequest.status = 'complete'")
+      .getMany();
+
+    if (!pending || !accepted || !declined || !completed) {
       return { errorMsg: "Something went wrong" };
     }
 
-    return { requests: { accepted, pending, declined } };
+    return { requests: { accepted, pending, declined, completed } };
   }
 
   @Mutation(() => RequestActionResponse)
@@ -190,6 +253,7 @@ export class SessionRequestResolver {
     }
 
     try {
+      // Capture payment
       const paymentIntent = await stripe.paymentIntents.capture(
         request.stripePaymentIntentId
       );
@@ -216,6 +280,7 @@ export class SessionRequestResolver {
     }
 
     try {
+      // Cancel payment
       const paymentIntent = await stripe.paymentIntents.cancel(
         request.stripePaymentIntentId
       );
@@ -228,5 +293,82 @@ export class SessionRequestResolver {
       console.log(error.code);
       return { errorMsg: "Something went wrong" };
     }
+  }
+
+  @Query(() => [SessionRequest])
+  @UseMiddleware(isAdminAuth)
+  async sessionRequests() {
+    const requests = getConnection()
+      .getRepository(SessionRequest)
+      .createQueryBuilder("session")
+      .innerJoinAndSelect("session.mentor", "mentor")
+      .innerJoinAndSelect("mentor.user", "mentorUser")
+      .innerJoinAndSelect("session.individual", "individual")
+      .innerJoinAndSelect("individual.user", "individualUser")
+      .getMany();
+
+    const test = await stripe.paymentIntents.retrieve(
+      "pi_1HjQWaGUOvv7bpMIv4x3oZUJ"
+    );
+
+    console.log(test.status);
+
+    return requests;
+  }
+
+  @Query(() => SessionRequestByIdResponse)
+  @UseMiddleware(isAdminAuth)
+  async sessionRequestById(
+    @Arg("requestId", () => Int) requestId: number
+  ): Promise<SessionRequestByIdResponse> {
+    const request = await SessionRequest.findOne({
+      where: { id: requestId },
+      relations: ["mentor", "individual", "mentor.user", "individual.user"],
+    });
+
+    if (!request) {
+      return { errorMsg: "Request not found" };
+    }
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(
+      request.stripePaymentIntentId
+    );
+
+    if (!paymentIntent) {
+      return { errorMsg: "Stripe error" };
+    }
+
+    const data: SessionRequestByIdData = {
+      individual: request.individual,
+      mentor: request.mentor,
+      ammount: request.ammount,
+      status: request.status,
+      paymentStatus: paymentIntent.status,
+      date: request.createdAt,
+      message: request.message,
+    };
+
+    return { data };
+  }
+
+  @Mutation(() => SetRequestCompleteResponse)
+  @UseMiddleware(isAdminAuth)
+  async setRequestComplete(
+    @Arg("requestId", () => Int) requestId: number
+  ): Promise<SetRequestCompleteResponse> {
+    const request = await SessionRequest.findOne({ where: { id: requestId } });
+
+    if (!request) {
+      return { errorMsg: "Request not found" };
+    }
+
+    request.status = "complete";
+    await request.save().catch((err: any) => {
+      console.log(err);
+      return { errorMsg: "Problem with database" };
+    });
+
+    console.log(request);
+    return { complete: true };
   }
 }

@@ -33,6 +33,10 @@ export class Individual extends BaseEntity {
   stripeCustomerId!: string;
 
   @Field()
+  @Column({ nullable: true, name: "stripe_payment_method_id" })
+  stripePaymentMethodId!: string;
+
+  @Field()
   @Column({ nullable: true, name: "subscription_id" })
   subscriptionId!: string;
 
