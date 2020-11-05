@@ -16,7 +16,7 @@ import { Individual } from "../entities/Individual";
 // import { Type } from "../entities/Type";
 import { Mentor } from "../entities/Mentor";
 import { MyContext } from "../types";
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, GENERATE_MENTOR_PREFIX } from "../constants";
 import { Admin } from "../entities/Admin";
 
 @ObjectType()
@@ -67,7 +67,6 @@ export class UsersResolver {
   @Mutation(() => UserResponse)
   async registerIndividual(
     @Arg("options", () => RegisterInput) options: RegisterInput
-    // @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
@@ -128,13 +127,25 @@ export class UsersResolver {
   // === REGISTER MENTOR MUTATION ===
   @Mutation(() => UserResponse)
   async registerMentor(
-    @Arg("options", () => RegisterInput) options: RegisterInput
-    // @Ctx() { req }: MyContext
+    @Arg("options", () => RegisterInput) options: RegisterInput,
+    @Arg("token", () => String) token: string,
+    @Ctx() { redis }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
 
     if (errors) return { errors };
+
+    const key = GENERATE_MENTOR_PREFIX + token;
+    const email = await redis.get(key);
+
+    if (!email) {
+      return {
+        errors: [
+          { field: "token", message: "Token has expired, please contact us." },
+        ],
+      };
+    }
 
     // check if email already exists
     const result = await Users.findOne({ email: options.email });
@@ -183,6 +194,8 @@ export class UsersResolver {
         return mentorUser;
       }
     );
+
+    redis.del(key);
 
     return { user };
   }
