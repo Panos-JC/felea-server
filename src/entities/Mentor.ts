@@ -29,6 +29,10 @@ export class Mentor extends BaseEntity {
   @Column({ name: "last_name" })
   lastName!: string;
 
+  @Field()
+  @Column({ name: "profile_complete", default: false })
+  profileComplete!: boolean;
+
   @Field({ nullable: true })
   @Column({ nullable: true })
   title!: string;

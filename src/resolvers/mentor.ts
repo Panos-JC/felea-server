@@ -34,7 +34,7 @@ class MentorResponse {
 
 @ObjectType()
 class MentorInfoResponse {
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
   avg: number;
 
   @Field(() => Number)
@@ -52,8 +52,17 @@ class MentorsResponse {
   @Field(() => Number)
   sessions: number;
 
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
   avg: number;
+}
+
+@ObjectType()
+class IsProfileCompleteResponse {
+  @Field(() => [String])
+  messages: string[];
+
+  @Field(() => Boolean)
+  isComplete: boolean;
 }
 
 @Resolver()
@@ -116,7 +125,7 @@ export class MentorResolver {
       .where("mentor.id = :id", { id: mentor.id })
       .getRawOne();
 
-    console.log("sessionCount ", sessionCount);
+    console.log("avg ", avg);
     return { info: mentor, sessionCount, avg };
   }
 
@@ -133,7 +142,9 @@ export class MentorResolver {
       .leftJoinAndSelect("mentor.expertises", "expertise")
       .leftJoinAndSelect("mentor.workExperience", "work_experience")
       .leftJoinAndSelect("work_experience.industries", "industry")
-      .leftJoinAndSelect("expertise.skill", "skill");
+      .leftJoinAndSelect("expertise.skill", "skill")
+      .where("mentor.profileComplete = true");
+    // .orderBy("review.rating", "DESC");
 
     if (skills.length > 0)
       _mentors.where("skill.name IN (:...names)", { names: skills });
@@ -160,12 +171,17 @@ export class MentorResolver {
         .addGroupBy("mentor.id")
         .getRawOne();
 
-      return { mentor, avg: avg.avg, sessions: sessionCount.count };
+      let sessions = 0;
+      if (sessionCount) {
+        sessions = sessionCount.count;
+      }
+
+      return { mentor, avg: avg.avg, sessions };
     });
 
-    const result: MentorResponse[] = await Promise.all(data);
+    const result: MentorsResponse[] = await Promise.all(data);
 
-    return result;
+    return result.sort((a, b) => b.avg - a.avg);
   }
 
   @Mutation(() => MentorResponse)
@@ -247,5 +263,57 @@ export class MentorResolver {
         error: { message: "Something went wrong while setting details" },
       };
     }
+  }
+
+  @Query(() => IsProfileCompleteResponse)
+  async isProfileComplete(
+    @Ctx() { req }: MyContext
+  ): Promise<IsProfileCompleteResponse> {
+    // get mentor by user id
+    const mentor = await Mentor.findOne({
+      where: { user: { id: req.session.userId } },
+      relations: ["expertises", "workExperience"],
+    });
+
+    if (!mentor) {
+      throw new Error("Mentor not found");
+    }
+
+    let messages: string[] = [];
+
+    if (
+      !mentor.title ||
+      !mentor.rate ||
+      !mentor.location ||
+      !mentor.languages
+    ) {
+      mentor.profileComplete = false;
+      messages.push("Update your profile info");
+    }
+
+    if (!mentor.bio) {
+      mentor.profileComplete = false;
+      messages.push("Update your bio");
+    }
+
+    if (mentor.expertises.length < 1) {
+      mentor.profileComplete = false;
+      messages.push("Add your expertise");
+    }
+
+    if (mentor.workExperience.length < 1) {
+      mentor.profileComplete = false;
+      messages.push("Add your work experience");
+    }
+
+    if (messages.length > 0) {
+      await mentor.save();
+      return { messages, isComplete: false };
+    }
+
+    mentor.profileComplete = true;
+    await mentor.save();
+
+    return { messages, isComplete: true };
   }
 }
