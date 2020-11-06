@@ -4,9 +4,11 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Company } from "./Company";
 import { Users } from "./Users";
 
 @ObjectType()
@@ -45,4 +47,8 @@ export class Individual extends BaseEntity {
   @OneToOne(() => Users, (user) => user.individual)
   @JoinColumn({ name: "user_id" })
   user: Users;
+
+  @Field(() => Company)
+  @ManyToOne(() => Company, { nullable: true })
+  company: Company;
 }
