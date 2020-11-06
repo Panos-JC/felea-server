@@ -60,11 +60,12 @@ export class ReviewResolver {
       return { errorMsg: "You already left a review." };
     }
 
-    const session = await SessionRequest.find({
-      where: { mentor, individual },
+    // Get completed sessions between individual and mentor
+    const sessions = await SessionRequest.find({
+      where: { mentor, individual, status: "complete" },
     });
 
-    if (session.length === 0) {
+    if (sessions.length === 0) {
       return { errorMsg: "You have not completed a session with this mentor." };
     }
 
