@@ -30,6 +30,8 @@ import { UsersResolver } from "./resolvers/user";
 import { WorkExperienceResolver } from "./resolvers/workExperience";
 import { SessionRequest } from "./entities/SessionRequest";
 import { SessionRequestResolver } from "./resolvers/sessionRequest";
+import { Company } from "./entities/Company";
+import { CompanyResolver } from "./resolvers/company";
 
 const main = async () => {
   const conn = await createConnection({
@@ -50,6 +52,7 @@ const main = async () => {
       Expertise,
       Review,
       SessionRequest,
+      Company,
     ],
     migrations: [path.join(__dirname, "/migrations/*")],
     migrationsRun: true,
@@ -103,6 +106,7 @@ const main = async () => {
         ExpertiseResolver,
         ReviewResolver,
         SessionRequestResolver,
+        CompanyResolver,
       ],
       validate: false,
     }),
