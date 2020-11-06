@@ -35,8 +35,11 @@ export class Users extends BaseEntity {
   type!: string;
 
   @Field()
-  @Column({ default: "https://avatars.dicebear.com/api/jdenticon/felea.svg" })
+  @Column({ nullable: true })
   avatar!: string;
+
+  @Column({ nullable: true })
+  avatarPublicId!: string;
 
   // relations
   @Field(() => Mentor, { nullable: true })

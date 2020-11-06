@@ -16,8 +16,16 @@ import { Individual } from "../entities/Individual";
 // import { Type } from "../entities/Type";
 import { Mentor } from "../entities/Mentor";
 import { MyContext } from "../types";
-import { COOKIE_NAME, GENERATE_MENTOR_PREFIX } from "../constants";
+import {
+  COOKIE_NAME,
+  FORGET_PASSWORD_PREFIX,
+  FRONTEND_URL,
+  GENERATE_MENTOR_PREFIX,
+} from "../constants";
 import { Admin } from "../entities/Admin";
+import { Company } from "../entities/Company";
+import { v4 } from "uuid";
+import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
 class FieldError {
@@ -63,6 +71,92 @@ export class UsersResolver {
     return user;
   }
 
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { redis }: MyContext
+  ): Promise<boolean> {
+    const user = await Users.findOne({ where: { email } });
+
+    if (!user) {
+      // the email is not in the db
+      return true;
+    }
+
+    const token = v4();
+
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60 * 24 * 1 // 1 day
+    );
+
+    sendEmail(
+      email,
+      `<a href="${FRONTEND_URL}/change-password/${token}" >Reset password</a>`
+    );
+
+    return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { redis, req }: MyContext
+  ): Promise<UserResponse> {
+    if (newPassword.length < 8) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "Password must be at least 8 characters",
+          },
+        ],
+      };
+    }
+
+    const key = FORGET_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const userIdNum = parseInt(userId);
+    const user = await Users.findOne(userIdNum);
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer exists",
+          },
+        ],
+      };
+    }
+
+    await Users.update(
+      { id: userIdNum },
+      {
+        password: await argon2.hash(newPassword),
+      }
+    );
+
+    redis.del(key);
+
+    return { user };
+  }
+
   // === REGISTER INDIVIDUAL MUTATION ===
   @Mutation(() => UserResponse)
   async registerIndividual(
@@ -72,6 +166,30 @@ export class UsersResolver {
     const errors = validateRegister(options);
 
     if (errors) return { errors };
+
+    const company = await Company.findOne({ where: { code: options.code } });
+
+    if (!company && options.code) {
+      return {
+        errors: [
+          {
+            field: "code",
+            message: "Your code is invalid",
+          },
+        ],
+      };
+    }
+
+    if (company && company.remainingAccounts < 1) {
+      return {
+        errors: [
+          {
+            field: "code",
+            message: "This code has expired",
+          },
+        ],
+      };
+    }
 
     // check if email already exists
     const result = await Users.findOne({ email: options.email });
@@ -93,6 +211,8 @@ export class UsersResolver {
     // execute queries in a transaction
     const user = await getManager().transaction(
       async (transactionalEntityManager) => {
+        // get company from code if it exists
+
         // create user
         const user = new Users();
         user.email = options.email;
@@ -105,6 +225,14 @@ export class UsersResolver {
         individual.firstName = options.firstName;
         individual.lastName = options.lastName;
         individual.user = user;
+
+        if (company) {
+          individual.company = company;
+          individual.premium = true;
+          company.remainingAccounts -= 1;
+          await company.save();
+        }
+
         await transactionalEntityManager.save(individual);
 
         // get User with Individual info
@@ -335,5 +463,24 @@ export class UsersResolver {
         resolve(true);
       })
     );
+  }
+
+  @Mutation(() => UserResponse)
+  async addAvatar(
+    @Arg("avatarUrl") avatarUrl: string,
+    @Arg("publicId") publicId: string,
+    @Ctx() { req }: MyContext
+  ): Promise<UserResponse> {
+    const user = await Users.findOne({ where: { id: req.session.userId } });
+
+    if (!user) {
+      return { errors: [{ field: "avatar", message: "User not found" }] };
+    }
+
+    user.avatar = avatarUrl;
+    user.avatarPublicId = publicId;
+    await user.save();
+
+    return { user };
   }
 }
