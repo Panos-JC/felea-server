@@ -32,10 +32,9 @@ import { SessionRequest } from "./entities/SessionRequest";
 import { SessionRequestResolver } from "./resolvers/sessionRequest";
 import { Company } from "./entities/Company";
 import { CompanyResolver } from "./resolvers/company";
-import { sendEmail } from "./utils/sendEmail";
 
 const main = async () => {
-  const conn = await createConnection({
+  await createConnection({
     type: "postgres",
     database: "feleatest2",
     username: "postgres",

@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import Email from "email-templates";
+// import Email from "email-templates";
 
 export async function sendEmail(to: string, html: string) {
   let transporter = nodemailer.createTransport({

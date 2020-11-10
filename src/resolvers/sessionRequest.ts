@@ -254,9 +254,7 @@ export class SessionRequestResolver {
 
     try {
       // Capture payment
-      const paymentIntent = await stripe.paymentIntents.capture(
-        request.stripePaymentIntentId
-      );
+      await stripe.paymentIntents.capture(request.stripePaymentIntentId);
 
       request.status = "accepted";
       await request.save();
@@ -281,9 +279,7 @@ export class SessionRequestResolver {
 
     try {
       // Cancel payment
-      const paymentIntent = await stripe.paymentIntents.cancel(
-        request.stripePaymentIntentId
-      );
+      await stripe.paymentIntents.cancel(request.stripePaymentIntentId);
 
       request.status = "declined";
       await request.save();
