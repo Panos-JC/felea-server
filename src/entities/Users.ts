@@ -34,7 +34,7 @@ export class Users extends BaseEntity {
   @Column()
   type!: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   avatar!: string;
 
