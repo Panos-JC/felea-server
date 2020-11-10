@@ -32,6 +32,7 @@ import { SessionRequest } from "./entities/SessionRequest";
 import { SessionRequestResolver } from "./resolvers/sessionRequest";
 import { Company } from "./entities/Company";
 import { CompanyResolver } from "./resolvers/company";
+import { sendEmail } from "./utils/sendEmail";
 
 const main = async () => {
   const conn = await createConnection({
@@ -118,7 +119,7 @@ const main = async () => {
     cors: false, // OR { origin: "http://localhost:3000" },
   });
 
-  app.listen(4000, () => {
+  app.listen(process.env.PORT || 4000, () => {
     console.log("Server started on port 4000...");
   });
 };
