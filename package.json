@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc -w",
+    "start": "node dist/index.js",
     "dev": "nodemon dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,6 +17,7 @@
     "connect-redis": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "email-templates": "^7.1.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "graphql": "^15.3.0",
@@ -23,6 +25,7 @@
     "nanoid": "^3.1.16",
     "nodemailer": "^6.4.14",
     "pg": "^8.4.1",
+    "pug": "^3.0.0",
     "reflect-metadata": "^0.1.13",
     "stripe": "^8.119.0",
     "type-graphql": "^1.0.0",
@@ -31,6 +34,7 @@
   },
   "devDependencies": {
     "@types/connect-redis": "0.0.14",
+    "@types/email-templates": "^7.1.0",
     "@types/express-session": "^1.17.0",
     "@types/ioredis": "^4.17.5",
     "@types/nodemailer": "^6.4.0",
