@@ -305,6 +305,7 @@ export class SessionRequestResolver {
       .innerJoinAndSelect("mentor.user", "mentorUser")
       .innerJoinAndSelect("session.individual", "individual")
       .innerJoinAndSelect("individual.user", "individualUser")
+      .orderBy("session.createdAt", "DESC")
       .getMany();
 
     const test = await stripe.paymentIntents.retrieve(
