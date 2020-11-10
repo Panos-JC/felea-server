@@ -144,6 +144,12 @@ export class MentorResolver {
       .leftJoinAndSelect("work_experience.industries", "industry")
       .leftJoinAndSelect("expertise.skill", "skill")
       .where("mentor.profileComplete = true");
+    // .where("to_tsvector(skill.name) @@ phraseto_tsquery(:q)", {
+    //   q: "Advice on Funding",
+    // });
+    // .where("to_tsvector(industry.name) @@ to_tsquery(:q)", {
+    //   q: "B2B | B2C",
+    // });
     // .orderBy("review.rating", "DESC");
 
     if (skills.length > 0)

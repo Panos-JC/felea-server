@@ -404,8 +404,19 @@ export class UsersResolver {
       return {
         errors: [
           {
-            field: "email",
-            message: "User does not exist",
+            field: "general",
+            message: "Wrong email or password",
+          },
+        ],
+      };
+    }
+
+    if (!_user.activated) {
+      return {
+        errors: [
+          {
+            field: "general",
+            message: "Please activate you email",
           },
         ],
       };
@@ -417,8 +428,8 @@ export class UsersResolver {
       return {
         errors: [
           {
-            field: "password",
-            message: "Incorrect password",
+            field: "general",
+            message: "Wrong email or password",
           },
         ],
       };

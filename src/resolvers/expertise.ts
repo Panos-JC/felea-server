@@ -68,6 +68,7 @@ export class ExpertiseResolver {
   }
 
   @Query(() => [Expertise])
+  @UseMiddleware(isMentorAuth)
   async expertises(@Ctx() { req }: MyContext): Promise<Expertise[]> {
     const mentor = await Mentor.findOne({
       where: { user: { id: req.session.userId } },
@@ -90,7 +91,8 @@ export class ExpertiseResolver {
   ): Promise<Expertise[]> {
     const expertises = await Expertise.find({
       where: { mentor: { id: mentorId } },
-      relations: ["skill", "mentor"],
+      // relations: ["skill", "mentor"],
+      relations: ["skill"],
     });
     console.log(expertises);
     return expertises;

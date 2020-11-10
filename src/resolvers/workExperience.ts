@@ -54,10 +54,6 @@ export class WorkExperienceResolver {
     @Arg("input") input: WorkExperienceInput,
     @Ctx() { req }: MyContext
   ): Promise<WorkExperience> {
-    // get industries
-    // create workExp
-    // create workExpInd
-
     const transaction = await getManager().transaction(
       async (transactionalEntityManager) => {
         const mentor = await transactionalEntityManager

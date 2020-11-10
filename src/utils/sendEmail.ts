@@ -1,15 +1,43 @@
 import nodemailer from "nodemailer";
+import Email from "email-templates";
 
 export async function sendEmail(to: string, html: string) {
   let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    // host: "smtp.ethereal.email",
+    // port: 587,
+    // secure: false, // true for 465, false for other ports
+    // auth: {
+    //   user: "ixl2whkl3e7ut6xh@ethereal.email", // generated ethereal user
+    //   pass: "8reAADtAyq1AHN9sAQ", // generated ethereal password
+    // },
+    service: "gmail",
     auth: {
-      user: "ixl2whkl3e7ut6xh@ethereal.email", // generated ethereal user
-      pass: "8reAADtAyq1AHN9sAQ", // generated ethereal password
+      user: "infopanostest@gmail.com",
+      pass: "panos@test1993",
     },
   });
+
+  // const email = new Email({
+  //   message: {
+  //     from: "infopanostest@gmail.com",
+  //   },
+  //   // uncomment below to send emails in development/test env:
+  //   send: false,
+  //   transport: transporter,
+  // });
+
+  // email
+  //   .send({
+  //     template: "mars",
+  //     message: {
+  //       to: "phatziioannou@gmail.com",
+  //     },
+  //     locals: {
+  //       name: "Elon",
+  //     },
+  //   })
+  //   .then(console.log)
+  //   .catch(console.error);
 
   let info = await transporter.sendMail({
     from: '"Fred Foo 👻" <foo@example.com>', // sender address
