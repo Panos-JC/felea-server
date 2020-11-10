@@ -66,7 +66,7 @@ const main = async () => {
 
   // redis store
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
   app.use(
     cors({
