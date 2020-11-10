@@ -15,7 +15,7 @@ import { SessionRequest } from "../entities/SessionRequest";
 import { isMentorAuth } from "../middleware/isMentorAuth";
 import { MyContext } from "../types";
 import { MentorDetailsInput } from "./inputTypes/MentorDetailsInput";
-import { SocialLinksInput } from "./inputTypes/socialLinksInput";
+import { SocialLinksInput } from "./inputTypes/SocialLinksInput";
 
 @ObjectType()
 class ErrorMessage {
