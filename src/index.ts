@@ -39,7 +39,7 @@ const main = async () => {
     })
   );
 
-  app.enable("trust proxy");
+  app.set("proxy", 1);
   app.use(
     session({
       name: COOKIE_NAME,
