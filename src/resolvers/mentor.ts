@@ -130,6 +130,41 @@ export class MentorResolver {
   }
 
   @Query(() => [MentorsResponse])
+  async allMentors(): Promise<MentorsResponse[]> {
+    const mentors = await Mentor.find({ relations: ["user"] });
+
+    const data = mentors.map(async (mentor) => {
+      const avg = await getConnection()
+        .createQueryBuilder(Mentor, "mentor")
+        .leftJoin("mentor.reviews", "r")
+        .addSelect("AVG(DISTINCT r.rating)", "avg")
+        .where("mentor.id = :id", { id: mentor.id })
+        .addGroupBy("mentor.id")
+        .getRawOne();
+
+      const sessionCount = await getConnection()
+        .createQueryBuilder(Mentor, "mentor")
+        .innerJoin("mentor.sessionRequests", "sessions")
+        .addSelect("COUNT(sessions)", "count")
+        .where("sessions.status = 'complete'")
+        .andWhere("mentor.id = :id", { id: mentor.id })
+        .addGroupBy("mentor.id")
+        .getRawOne();
+
+      let sessions = 0;
+      if (sessionCount) {
+        sessions = sessionCount.count;
+      }
+
+      return { mentor, avg: avg.avg, sessions };
+    });
+
+    const result: MentorsResponse[] = await Promise.all(data);
+
+    return result;
+  }
+
+  @Query(() => [MentorsResponse])
   async mentors(
     @Arg("skills", () => [String]) skills: string[],
     @Arg("industries", () => [String]) industries: string[]
@@ -158,6 +193,8 @@ export class MentorResolver {
       _mentors.where("industry.name IN (:...names)", { names: industries });
 
     const mentors = await _mentors.getMany();
+
+    console.log("[MENTORS ]: ", mentors);
 
     const data = mentors.map(async (mentor) => {
       const avg = await getConnection()
