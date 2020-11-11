@@ -39,6 +39,7 @@ const main = async () => {
     })
   );
 
+  app.enable("trust proxy");
   app.use(
     session({
       name: COOKIE_NAME,
@@ -46,6 +47,7 @@ const main = async () => {
         client: redis,
         disableTouch: true,
       }),
+      proxy: true,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 24 hours
         httpOnly: false,
@@ -53,7 +55,7 @@ const main = async () => {
         secure: true, // __prod__, // cookie only works in https
       },
       saveUninitialized: false,
-      secret: "thisisasecret", // Should be hidden
+      secret: process.env.SESSION_SECRET || "thisisasecret", // Should be hidden
       resave: false,
     })
   );
