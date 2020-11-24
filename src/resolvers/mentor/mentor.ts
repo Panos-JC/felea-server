@@ -10,12 +10,12 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
-import { Mentor } from "../entities/Mentor";
-import { SessionRequest } from "../entities/SessionRequest";
-import { isMentorAuth } from "../middleware/isMentorAuth";
-import { MyContext } from "../types";
-import { MentorDetailsInput } from "./inputTypes/MentorDetailsInput";
-import { SocialLinksInput } from "./inputTypes/SocialLinksInput";
+import { Mentor } from "../../entities/Mentor";
+import { SessionRequest } from "../../entities/SessionRequest";
+import { isMentorAuth } from "../../middleware/isMentorAuth";
+import { MyContext } from "../../types";
+import { MentorDetailsInput } from "../inputTypes/MentorDetailsInput";
+import { SocialLinksInput } from "../inputTypes/SocialLinksInput";
 
 @ObjectType()
 class ErrorMessage {

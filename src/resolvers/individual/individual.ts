@@ -6,11 +6,11 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { Individual } from "../entities/Individual";
-import { Users } from "../entities/Users";
-import { isIndividualAuth } from "../middleware/isIndividualAuth";
-import { stripe } from "../stripe";
-import { MyContext } from "../types";
+import { Individual } from "../../entities/Individual";
+import { Users } from "../../entities/Users";
+import { isIndividualAuth } from "../../middleware/isIndividualAuth";
+import { stripe } from "../../stripe";
+import { MyContext } from "../../types";
 
 @Resolver()
 export class IndividualResolver {

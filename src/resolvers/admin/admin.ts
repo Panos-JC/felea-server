@@ -8,13 +8,13 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { Admin } from "../entities/Admin";
+import { Admin } from "../../entities/Admin";
 import { v4 } from "uuid";
-import { Users } from "../entities/Users";
-import { MyContext } from "../types";
-import { FRONTEND_URL, GENERATE_MENTOR_PREFIX } from "../constants";
-import { sendEmail } from "../utils/sendEmail";
-import { isAdminAuth } from "../middleware/isAdminAuth";
+import { Users } from "../../entities/Users";
+import { MyContext } from "../../types";
+import { FRONTEND_URL, GENERATE_MENTOR_PREFIX } from "../../constants";
+import { sendEmail } from "../../utils/sendEmail";
+import { isAdminAuth } from "../../middleware/isAdminAuth";
 
 @ObjectType()
 class GenerateMentorResponse {
