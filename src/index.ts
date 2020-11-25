@@ -10,17 +10,26 @@ import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import { AdminResolver } from "./resolvers/admin";
+import { AdminResolver } from "./resolvers/admin/admin";
 import { ExpertiseResolver } from "./resolvers/expertise";
-import { IndividualResolver } from "./resolvers/individual";
+import { IndividualResolver } from "./resolvers/individual/individual";
 import { IndustryResolver } from "./resolvers/industry";
-import { MentorResolver } from "./resolvers/mentor";
+import { MentorResolver } from "./resolvers/mentor/mentor.resolver";
 import { ReviewResolver } from "./resolvers/review";
 import { SkillResolver } from "./resolvers/skill";
-import { UsersResolver } from "./resolvers/user";
-import { WorkExperienceResolver } from "./resolvers/workExperience";
+import { WorkExperienceResolver } from "./resolvers/workExperience/workExperience.resolver";
 import { SessionRequestResolver } from "./resolvers/sessionRequest";
 import { CompanyResolver } from "./resolvers/company";
+import { RegisterResolver } from "./resolvers/users/register/register.resolver";
+import { AvatarResolver } from "./resolvers/users/avatar/avatar.resolver";
+import { ChangePasswordResolver } from "./resolvers/users/changePassword/changePassword.resolver";
+import { LoginResolver } from "./resolvers/users/login/login.resolver";
+import { MeResolver } from "./resolvers/users/me/me.resolver";
+import { UpdateIndividualInfoResolver } from "./resolvers/individual/updateIndividualInfo/updateIndividualInfo.resolver";
+import { UpdateAdminInfoResolver } from "./resolvers/admin/updateAdminInfo/updateAdminInfo.resolver";
+import { EducationResolver } from "./resolvers/education/education.resolver";
+import { CertificateResolver } from "./resolvers/certificate/certificate.resolver";
+import { MentorDetailsResolver } from "./resolvers/mentor/mentorDetails/mentorDetails.resolver";
 
 const main = async () => {
   await createConnection();
@@ -51,8 +60,8 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 24 hours
         httpOnly: false,
-        sameSite: "none",
-        secure: true, // __prod__, // cookie only works in https
+        sameSite: __prod__ ? "none" : "lax",
+        secure: false, // __prod__, // cookie only works in https
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET || "thisisasecret", // Should be hidden
@@ -63,7 +72,17 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
-        UsersResolver,
+        MentorDetailsResolver,
+        CertificateResolver,
+        EducationResolver,
+        UpdateAdminInfoResolver,
+        UpdateIndividualInfoResolver,
+        AvatarResolver,
+        ChangePasswordResolver,
+        LoginResolver,
+        MeResolver,
+        RegisterResolver,
+        RegisterResolver,
         WorkExperienceResolver,
         IndustryResolver,
         MentorResolver,
@@ -85,8 +104,10 @@ const main = async () => {
     cors: false, // OR { origin: "http://localhost:3000" },
   });
 
-  app.listen(process.env.PORT || 4000, () => {
-    console.log("Server started on port 4000...");
+  const port = process.env.PORT || 4000;
+
+  app.listen(port, () => {
+    console.log(`Server started on port ${port}...`);
   });
 };
 
