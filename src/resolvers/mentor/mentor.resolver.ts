@@ -3,34 +3,15 @@ import {
   Ctx,
   Field,
   Int,
-  Mutation,
   ObjectType,
   Query,
   Resolver,
-  UseMiddleware,
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { Mentor } from "../../entities/Mentor";
 import { SessionRequest } from "../../entities/SessionRequest";
-import { isMentorAuth } from "../../middleware/isMentorAuth";
 import { MyContext } from "../../types";
-import { MentorDetailsInput } from "../inputTypes/MentorDetailsInput";
-import { SocialLinksInput } from "../inputTypes/SocialLinksInput";
-
-@ObjectType()
-class ErrorMessage {
-  @Field()
-  message: string;
-}
-
-@ObjectType()
-class MentorResponse {
-  @Field(() => ErrorMessage, { nullable: true })
-  error?: ErrorMessage;
-
-  @Field(() => Mentor, { nullable: true })
-  mentor?: Mentor;
-}
+import { MentorResponse } from "./mentorDetails/mentorDetails.response";
 
 @ObjectType()
 class MentorInfoResponse {
@@ -194,8 +175,6 @@ export class MentorResolver {
 
     const mentors = await _mentors.getMany();
 
-    console.log("[MENTORS ]: ", mentors);
-
     const data = mentors.map(async (mentor) => {
       const avg = await getConnection()
         .createQueryBuilder(Mentor, "mentor")
@@ -225,87 +204,6 @@ export class MentorResolver {
     const result: MentorsResponse[] = await Promise.all(data);
 
     return result.sort((a, b) => b.avg - a.avg);
-  }
-
-  @Mutation(() => MentorResponse)
-  // @UseMiddleware(isAuth)
-  async setMentorDetails(
-    @Arg("options", () => MentorDetailsInput) options: MentorDetailsInput,
-    @Ctx() { req }: MyContext
-  ): Promise<MentorResponse> {
-    // get mentor by user id
-    const mentor = await Mentor.findOne({
-      where: { user: { id: req.session.userId } },
-    });
-
-    if (mentor) {
-      mentor.firstName = options.firstName;
-      mentor.lastName = options.lastName;
-      mentor.title = options.title;
-      mentor.rate = options.rate;
-      mentor.location = options.location;
-      mentor.languages = options.languages;
-
-      const updatedMentor = await Mentor.save(mentor);
-
-      return { mentor: updatedMentor };
-    } else {
-      return {
-        error: { message: "Something went wrong while setting details" },
-      };
-    }
-  }
-
-  @Mutation(() => MentorResponse)
-  @UseMiddleware(isMentorAuth)
-  async setMentorLinks(
-    @Arg("links", () => SocialLinksInput) links: SocialLinksInput,
-    @Ctx() { req }: MyContext
-  ): Promise<MentorResponse> {
-    // Get mentor
-    const mentor = await Mentor.findOne({
-      where: { user: { id: req.session.userId } },
-    });
-
-    if (!mentor) {
-      return { error: { message: "Something went wrong, please try again." } };
-    }
-
-    // Update links if they exist as arguments
-    links.facebook && (mentor.facebook = links.facebook);
-    links.instagram && (mentor.instagram = links.instagram);
-    links.medium && (mentor.medium = links.medium);
-    links.twitter && (mentor.twitter = links.twitter);
-    links.linkedin && (mentor.linkedin = links.linkedin);
-
-    const updatedMentor = await Mentor.save(mentor);
-
-    console.log(updatedMentor);
-
-    return { mentor: updatedMentor };
-  }
-
-  @Mutation(() => MentorResponse)
-  async setBio(
-    @Arg("bio", () => String) bio: string,
-    @Ctx() { req }: MyContext
-  ): Promise<MentorResponse> {
-    // get mentor by user id
-    const mentor = await Mentor.findOne({
-      where: { user: { id: req.session.userId } },
-    });
-
-    if (mentor) {
-      mentor.bio = bio;
-
-      const updatedMentor = await Mentor.save(mentor);
-
-      return { mentor: updatedMentor };
-    } else {
-      return {
-        error: { message: "Something went wrong while setting details" },
-      };
-    }
   }
 
   @Query(() => IsProfileCompleteResponse)

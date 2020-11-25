@@ -38,6 +38,10 @@ export class Mentor extends BaseEntity {
   title!: string;
 
   @Field({ nullable: true })
+  @Column("text", { nullable: true })
+  motto!: string;
+
+  @Field({ nullable: true })
   @Column({ nullable: true })
   location!: string;
 
