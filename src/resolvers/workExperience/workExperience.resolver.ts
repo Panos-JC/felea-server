@@ -14,27 +14,43 @@ import { WorkExperience } from "../../entities/WorkExperience";
 import { isMentorAuth } from "../../middleware/isMentorAuth";
 import { MyContext } from "../../types";
 import { WorkExperienceInput } from "./workExperience.input";
-import { WorkExperienceResponse } from "./workExperience.response";
+import {
+  WorkExperienceResponse,
+  WorkExperiencesResponse,
+} from "./workExperience.response";
 
 @Resolver()
 export class WorkExperienceResolver {
-  private workExperience = getRepository(WorkExperience);
+  private experience = getRepository(WorkExperience);
   private industry = getRepository(Industry);
+  private mentor = getRepository(Mentor);
 
   // === GET WORK EXPERIENCES QUERY ===
-  @Query(() => [WorkExperience])
+  @Query(() => WorkExperiencesResponse)
   async workExperiences(
-    @Arg("mentorId", () => Int) mentorId: number
-  ): Promise<WorkExperience[]> {
-    const result = await getConnection()
-      .getRepository(WorkExperience)
-      .createQueryBuilder("we")
-      .innerJoinAndSelect("we.industries", "industry")
-      .where("we.mentor_id = :mentorId", { mentorId })
+    @Ctx() { req }: MyContext,
+    @Arg("mentorId", () => Int, { nullable: true }) mentorId?: number
+  ): Promise<WorkExperiencesResponse> {
+    let mentor;
+    if (mentorId) {
+      mentor = await this.mentor.findOne(mentorId);
+    } else {
+      mentor = await this.mentor.findOne({
+        where: { user: { id: req.session.userId } },
+      });
+    }
+
+    if (!mentor) {
+      return { errorMsg: "User not found" };
+    }
+
+    const experience = await this.experience
+      .createQueryBuilder("experience")
+      .innerJoinAndSelect("experience.industries", "industry")
+      .where("experience.mentor_id = :mentorId", { mentorId: mentor.id })
       .getMany();
 
-    console.log("result ", result);
-    return result;
+    return { data: experience };
   }
 
   // === CREATE WORK EXPERIENCE MUTATION ===
@@ -94,7 +110,7 @@ export class WorkExperienceResolver {
       .getMany();
 
     // Get work experience
-    const workExperience = await this.workExperience.findOne(id);
+    const workExperience = await this.experience.findOne(id);
 
     if (!workExperience) {
       return { errorsMsg: "Work experience not found" };
@@ -106,7 +122,7 @@ export class WorkExperienceResolver {
     workExperience.untill = input.untill;
     workExperience.description = input.description;
     workExperience.industries = industries;
-    this.workExperience.save(workExperience);
+    this.experience.save(workExperience);
 
     return { workExperience };
   }
@@ -118,13 +134,13 @@ export class WorkExperienceResolver {
     @Arg("id", () => Int) id: number
   ): Promise<Boolean> {
     // Get work experience
-    const workExperience = await this.workExperience.findOne(id);
+    const workExperience = await this.experience.findOne(id);
 
     if (!workExperience) {
       return false;
     }
 
-    await this.workExperience.remove(workExperience);
+    await this.experience.remove(workExperience);
 
     return true;
   }
