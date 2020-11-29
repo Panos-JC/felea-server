@@ -16,8 +16,12 @@ export class Skill extends BaseEntity {
   id!: number;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   name!: string;
+
+  @Field()
+  @Column({ unique: true })
+  nameLowercase!: string;
 
   // created at & updated at
   @Field(() => String)
