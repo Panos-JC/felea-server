@@ -1,69 +1,83 @@
 import {
   Arg,
   Ctx,
-  Field,
   Int,
   Mutation,
-  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { getConnection } from "typeorm";
-import { Expertise } from "../entities/Expertise";
-import { Mentor } from "../entities/Mentor";
-import { Skill } from "../entities/Skill";
-import { isMentorAuth } from "../middleware/isMentorAuth";
-import { MyContext } from "../types";
-
-@ObjectType()
-class ExpertiseResponse {
-  @Field(() => String, { nullable: true })
-  errorMsg?: string;
-
-  @Field(() => Expertise, { nullable: true })
-  expertise?: Expertise;
-}
-
-@ObjectType()
-class DeleteResponse {
-  @Field(() => String, { nullable: true })
-  errorMsg?: string;
-
-  @Field(() => Boolean, { nullable: true })
-  deleted?: boolean;
-}
+import { getConnection, getRepository } from "typeorm";
+import { Expertise } from "../../entities/Expertise";
+import { Mentor } from "../../entities/Mentor";
+import { Skill } from "../../entities/Skill";
+import { isMentorAuth } from "../../middleware/isMentorAuth";
+import { MyContext } from "../../types";
+import { DeleteResponse, ExpertiseResponse } from "./expertise.response";
 
 @Resolver()
 export class ExpertiseResolver {
+  private expertise = getRepository(Expertise);
+  private skill = getRepository(Skill);
+  private mentor = getRepository(Mentor);
+
   @Mutation(() => ExpertiseResponse)
   @UseMiddleware(isMentorAuth)
   async createExpertise(
-    @Arg("skillId", () => Int) skillId: number,
+    @Arg("skillName", () => String) skillName: string,
     @Arg("description") description: string,
+    @Arg("descriptionText") descriptionText: string,
     @Ctx() { req }: MyContext
   ): Promise<ExpertiseResponse> {
-    const skill = await Skill.findOne(skillId);
-
-    if (!skill) {
-      return { errorMsg: "No skill found" };
+    if (!descriptionText.replace(/\s+/g, "")) {
+      return {
+        error: {
+          field: "description",
+          message: "This field must not be empty",
+        },
+      };
     }
-    const mentor = await Mentor.findOne({
+
+    if (!skillName.replace(/\s+/g, "")) {
+      return {
+        error: { field: "skill", message: "This field must not be empty" },
+      };
+    }
+
+    // Get mentor from session
+    const mentor = await this.mentor.findOne({
       where: { user: { id: req.session.userId } },
     });
 
     if (!mentor) {
-      return { errorMsg: "No mentor found" };
+      return { error: { field: "general", message: "Mentor not found" } };
     }
 
     const expertise = new Expertise();
     expertise.mentor = mentor;
-    expertise.skill = skill;
     expertise.description = description;
+    expertise.descriptionText = descriptionText;
 
-    const createdExpertise = await Expertise.save(expertise);
+    const skill = await this.skill.findOne({
+      where: { nameLowercase: skillName.toLowerCase() },
+    });
 
-    return { expertise: createdExpertise };
+    // Create skill if it does not exist
+    if (!skill) {
+      const newSkill = new Skill();
+      newSkill.name = skillName;
+      newSkill.nameLowercase = skillName.toLowerCase();
+
+      await this.skill.save(newSkill);
+
+      expertise.skill = newSkill;
+    } else {
+      expertise.skill = skill;
+    }
+
+    await this.expertise.save(expertise);
+
+    return { expertise };
   }
 
   @Query(() => [Expertise])
