@@ -23,6 +23,10 @@ export class Expertise extends BaseEntity {
   @Column("text")
   description: string;
 
+  @Field()
+  @Column("text")
+  descriptionText: string;
+
   // relations
   @Field()
   @ManyToOne(() => Skill)
