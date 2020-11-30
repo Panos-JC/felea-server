@@ -29,21 +29,17 @@ export class WorkExperience extends BaseEntity {
   @Column({ name: "company_name" })
   companyName!: string;
 
-  // @Field()
-  // @Column({ nullable: true })
-  // link: string;
-
   @Field()
   @Column("text")
   description!: string;
 
   @Field()
   @Column()
-  from!: string;
+  from!: Date;
 
   @Field()
   @Column()
-  untill!: string;
+  untill!: Date;
 
   @Field(() => [Industry], { nullable: true })
   @ManyToMany(() => Industry)
