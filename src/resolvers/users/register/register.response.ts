@@ -1,13 +1,6 @@
 import { ObjectType, Field } from "type-graphql";
 import { Users } from "../../../entities/Users";
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
+import { FieldError } from "../../shared/ObjectTypes";
 
 @ObjectType()
 export class UserResponse {

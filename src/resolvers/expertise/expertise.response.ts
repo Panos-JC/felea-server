@@ -1,6 +1,6 @@
 import { ObjectType, Field } from "type-graphql";
 import { Expertise } from "../../entities/Expertise";
-import { FieldError } from "../users/register/register.response";
+import { FieldError } from "../shared/ObjectTypes";
 
 @ObjectType()
 export class ExpertiseResponse {
