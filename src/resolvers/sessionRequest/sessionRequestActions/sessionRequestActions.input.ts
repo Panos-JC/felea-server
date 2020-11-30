@@ -18,6 +18,4 @@ export class SessionRequestInput {
   ammount: number;
   @Field()
   mentorId: number;
-  @Field()
-  token: string;
 }
