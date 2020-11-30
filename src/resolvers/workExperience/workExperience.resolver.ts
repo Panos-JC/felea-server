@@ -7,7 +7,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { getConnection, getManager, getRepository } from "typeorm";
+import { getRepository } from "typeorm";
 import { Industry } from "../../entities/Industry";
 import { Mentor } from "../../entities/Mentor";
 import { WorkExperience } from "../../entities/WorkExperience";
@@ -54,44 +54,50 @@ export class WorkExperienceResolver {
   }
 
   // === CREATE WORK EXPERIENCE MUTATION ===
-  @Mutation(() => WorkExperience)
+  @Mutation(() => WorkExperienceResponse)
   async createWorkExperience(
     @Arg("input") input: WorkExperienceInput,
     @Ctx() { req }: MyContext
-  ): Promise<WorkExperience> {
-    const transaction = await getManager().transaction(
-      async (transactionalEntityManager) => {
-        const mentor = await transactionalEntityManager
-          .getRepository(Mentor)
-          .createQueryBuilder("mentor")
-          .where("mentor.user_id = :id", { id: req.session.userId })
-          .getOne();
+  ): Promise<WorkExperienceResponse> {
+    const mentor = await this.mentor.findOne({
+      where: { user: { id: req.session.userId } },
+    });
 
-        const workExperienceResult = await transactionalEntityManager
-          .getRepository(Industry)
-          .createQueryBuilder("industry")
-          .where("industry.name_lowercase IN (:...industries)", {
-            industries: input.industries,
-          })
-          .getMany()
-          .then(async (industries) => {
-            const workExperience = new WorkExperience();
-            workExperience.role = input.role;
-            workExperience.companyName = input.companyName;
-            workExperience.description = input.description;
-            workExperience.from = input.from;
-            workExperience.untill = input.untill;
-            workExperience.mentor = mentor!;
-            workExperience.industries = industries;
+    if (!mentor) {
+      return { error: { field: "General", message: "User not found" } };
+    }
 
-            return await transactionalEntityManager.save(workExperience);
-          });
+    const experience = new WorkExperience();
+    experience.mentor = mentor;
+    experience.role = input.role;
+    experience.companyName = input.companyName;
+    experience.from = input.from;
+    experience.untill = input.untill;
+    experience.description = input.description;
+    experience.industries = [];
 
-        return workExperienceResult;
+    // create work experiences if they dont exist
+    for (const ind of input.industries) {
+      const industry = await this.industry.findOne({
+        where: { nameLowercase: ind.toLowerCase() },
+      });
+
+      if (industry) {
+        experience.industries = [...experience.industries, industry];
+      } else {
+        const newIndustryDto = new Industry();
+        newIndustryDto.name = ind;
+        newIndustryDto.nameLowercase = ind.toLowerCase();
+
+        const newIndustry = await this.industry.save(newIndustryDto);
+        experience.industries = [...experience.industries, newIndustry];
       }
-    );
+    }
 
-    return transaction;
+    // save new work experience
+    const newExperience = await this.experience.save(experience);
+
+    return { workExperience: newExperience };
   }
 
   // === UPDATE WORK EXPERIENCE MUTATION ===
@@ -113,7 +119,9 @@ export class WorkExperienceResolver {
     const workExperience = await this.experience.findOne(id);
 
     if (!workExperience) {
-      return { errorsMsg: "Work experience not found" };
+      return {
+        error: { field: "general", message: "Work experience not found" },
+      };
     }
 
     workExperience.role = input.role;
