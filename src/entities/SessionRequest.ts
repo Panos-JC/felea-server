@@ -50,10 +50,6 @@ export class SessionRequest extends BaseEntity {
   @Column()
   ammount: number;
 
-  @Field()
-  @Column()
-  stripePaymentIntentId: string;
-
   // Relations
   @Field(() => Individual)
   @ManyToOne(() => Individual)
