@@ -9,9 +9,9 @@ export class WorkExperienceInput {
   @Field()
   description: string;
   @Field()
-  from: string;
+  from: Date;
   @Field()
-  untill: string;
+  untill: Date;
   @Field(() => [String])
   industries: string[];
 }
