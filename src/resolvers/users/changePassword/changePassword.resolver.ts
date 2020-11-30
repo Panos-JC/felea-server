@@ -6,9 +6,9 @@ import { v4 } from "uuid";
 import argon2 from "argon2";
 
 import { FORGET_PASSWORD_PREFIX, FRONTEND_URL } from "../../../constants";
-import { sendEmail } from "../../../utils/sendEmail";
 import { UserResponse } from "../register/register.response";
 import { isAuth } from "../../../middleware/isAuth";
+import { send } from "../../../utils/send";
 
 @Resolver()
 export class ChangePasswordResolver {
@@ -35,10 +35,9 @@ export class ChangePasswordResolver {
       1000 * 60 * 60 * 24 * 1 // 1 day
     );
 
-    sendEmail(
-      email,
-      `<a href="${FRONTEND_URL}/change-password/${token}" >Reset password</a>`
-    );
+    send(email, "Change your password", "forgotPassword", {
+      link: `${FRONTEND_URL}/change-password/${token}`,
+    });
 
     return true;
   }
