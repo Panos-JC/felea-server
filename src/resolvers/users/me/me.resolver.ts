@@ -2,22 +2,22 @@ import { Ctx, Query, Resolver } from "type-graphql";
 import { Users } from "../../../entities/Users";
 import { MyContext } from "../../../types";
 import { getRepository } from "typeorm";
+import { MeResponse } from "./me.response";
 
 @Resolver()
 export class MeResolver {
   private user = getRepository(Users);
 
-  @Query(() => Users, { nullable: true })
-  async me(@Ctx() { req }: MyContext): Promise<Users | null> {
+  @Query(() => MeResponse)
+  async me(@Ctx() { req }: MyContext): Promise<MeResponse> {
     if (!req.session.userId) {
-      return null;
+      return { errorMsg: "No Session" };
     }
 
     const _user = await this.user.findOne({ id: req.session.userId });
 
     if (!_user) {
-      console.log("ME QUERY ERROR");
-      return null;
+      return { errorMsg: "_User not found" };
     }
 
     const user = await this.user
@@ -27,9 +27,9 @@ export class MeResolver {
       .getOne();
 
     if (!user) {
-      return null;
+      return { errorMsg: "User not found" };
     }
 
-    return user;
+    return { me: user };
   }
 }
