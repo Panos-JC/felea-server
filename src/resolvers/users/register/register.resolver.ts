@@ -193,6 +193,16 @@ export class RegisterResolver {
       }
     );
 
+    if (user) {
+      const token = v4();
+
+      await redis.set(token, user.id, "ex", 1000 * 60 * 60 * 24 * 7); // 7 days
+
+      send(user.email, "Activate your account", "activateEmail", {
+        link: `${FRONTEND_URL}/user/activate/${token}`,
+      });
+    }
+
     redis.del(key);
 
     return { user };
@@ -201,7 +211,8 @@ export class RegisterResolver {
   // === REGISTER ADMIN MUTATION ===
   @Mutation(() => UserResponse)
   async registerAdmin(
-    @Arg("options", () => RegisterInput) options: RegisterInput
+    @Arg("options", () => RegisterInput) options: RegisterInput,
+    @Ctx() { redis }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
@@ -255,6 +266,16 @@ export class RegisterResolver {
         return adminUser;
       }
     );
+
+    if (user) {
+      const token = v4();
+
+      await redis.set(token, user.id, "ex", 1000 * 60 * 60 * 24 * 7); // 7 days
+
+      send(user.email, "Activate your account", "activateEmail", {
+        link: `${FRONTEND_URL}/user/activate/${token}`,
+      });
+    }
 
     return { user };
   }
