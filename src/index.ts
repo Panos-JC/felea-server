@@ -61,7 +61,7 @@ const main = async () => {
       proxy: true,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24, // 24 hours
-        httpOnly: true,
+        httpOnly: false,
         sameSite: __prod__ ? "none" : "lax",
         secure: __prod__, // cookie only works in https
       },
