@@ -8,16 +8,19 @@ import { RegisterInput } from "./register.input";
 import { UserResponse } from "./register.response";
 import argon2 from "argon2";
 import { MyContext } from "../../../types";
-import { GENERATE_MENTOR_PREFIX } from "../../../constants";
+import { FRONTEND_URL, GENERATE_MENTOR_PREFIX } from "../../../constants";
 import { Mentor } from "../../../entities/Mentor";
 import { Admin } from "../../../entities/Admin";
+import { v4 } from "uuid";
+import { send } from "../../../utils/send";
 
 @Resolver()
 export class RegisterResolver {
   @Mutation(() => UserResponse)
   // === REGISTER INDIVIDUAL MUTATION ===
   async registerIndividual(
-    @Arg("options", () => RegisterInput) options: RegisterInput
+    @Arg("options", () => RegisterInput) options: RegisterInput,
+    @Ctx() { redis }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
@@ -105,6 +108,16 @@ export class RegisterResolver {
         return individualUser;
       }
     );
+
+    if (user) {
+      const token = v4();
+
+      await redis.set(token, user.id, "ex", 1000 * 60 * 60 * 24 * 7); // 7 days
+
+      send(user.email, "Activate your account", "activateEmail", {
+        link: `${FRONTEND_URL}/user/activate/${token}`,
+      });
+    }
 
     return { user };
   }
