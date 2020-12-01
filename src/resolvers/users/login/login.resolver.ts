@@ -30,16 +30,16 @@ export class LoginResolver {
       };
     }
 
-    // if (!_user.activated) {
-    //   return {
-    //     errors: [
-    //       {
-    //         field: "general",
-    //         message: "Please activate you email",
-    //       },
-    //     ],
-    //   };
-    // }
+    if (!_user.activated) {
+      return {
+        errors: [
+          {
+            field: "general",
+            message: "Please activate you email",
+          },
+        ],
+      };
+    }
 
     // check if password is correct
     const valid = await argon2.verify(_user.password, password);
