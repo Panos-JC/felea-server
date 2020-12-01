@@ -1,5 +1,5 @@
-import { RegisterInput } from "../resolvers/inputTypes/RegisterInput";
 import validator from "validator";
+import { RegisterInput } from "../resolvers/users/register/register.input";
 
 export const validateRegister = (options: RegisterInput) => {
   if (!validator.isEmail(options.email)) {
