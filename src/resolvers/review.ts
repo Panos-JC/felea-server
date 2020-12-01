@@ -90,7 +90,6 @@ export class ReviewResolver {
       relations: ["individual", "individual.user"],
     });
 
-    console.log(reviews);
     return reviews;
   }
 }
