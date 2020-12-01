@@ -63,7 +63,7 @@ const main = async () => {
         maxAge: 1000 * 60 * 60 * 24, // 24 hours
         httpOnly: false,
         sameSite: __prod__ ? "none" : "lax",
-        secure: false, // cookie only works in https
+        secure: __prod__, // cookie only works in https
       },
       saveUninitialized: true,
       secret: process.env.SESSION_SECRET || "thisisasecret", // Should be hidden
