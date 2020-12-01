@@ -1,11 +1,11 @@
 module.exports = {
   type: "postgres",
-  // database: "felea",
+  // database: "feleatest2",
   // username: "postgres",
   // password: "postgres",
   url: process.env.DATABASE_URL,
-  logging: true,
-  synchronize: true,
+  logging: process.env.NODE_ENV === "dev",
+  synchronize: process.env.NODE_ENV === "dev",
   ssl: {
     rejectUnauthorized: false
   },
