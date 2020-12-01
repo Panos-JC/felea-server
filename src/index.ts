@@ -5,20 +5,19 @@ import cors from "cors";
 import express from "express";
 import session from "express-session";
 import Redis from "ioredis";
-// import path from "path";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import { AdminResolver } from "./resolvers/admin/admin";
-import { ExpertiseResolver } from "./resolvers/expertise";
+import { AdminResolver } from "./resolvers/admin/admin.resolver";
+import { ExpertiseResolver } from "./resolvers/expertise/expertise.resolver";
 import { IndividualResolver } from "./resolvers/individual/individual";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor/mentor.resolver";
 import { ReviewResolver } from "./resolvers/review";
 import { SkillResolver } from "./resolvers/skill";
 import { WorkExperienceResolver } from "./resolvers/workExperience/workExperience.resolver";
-import { SessionRequestResolver } from "./resolvers/sessionRequest";
+import { SessionRequestResolver } from "./resolvers/sessionRequest/sessionRequest.resolver";
 import { CompanyResolver } from "./resolvers/company";
 import { RegisterResolver } from "./resolvers/users/register/register.resolver";
 import { AvatarResolver } from "./resolvers/users/avatar/avatar.resolver";
@@ -30,6 +29,9 @@ import { UpdateAdminInfoResolver } from "./resolvers/admin/updateAdminInfo/updat
 import { EducationResolver } from "./resolvers/education/education.resolver";
 import { CertificateResolver } from "./resolvers/certificate/certificate.resolver";
 import { MentorDetailsResolver } from "./resolvers/mentor/mentorDetails/mentorDetails.resolver";
+import { SessionRequestActionsResolver } from "./resolvers/sessionRequest/sessionRequestActions/sessionRequestActions.resolver";
+import { ConfirmUserResolver } from "./resolvers/users/confirmUser/confirmUser.resolver";
+import { AdminMentorInfoResolver } from "./resolvers/admin/mentorInfo/mentorInfo.resolver";
 
 const main = async () => {
   await createConnection();
@@ -72,6 +74,9 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
+        AdminMentorInfoResolver,
+        ConfirmUserResolver,
+        SessionRequestActionsResolver,
         MentorDetailsResolver,
         CertificateResolver,
         EducationResolver,
