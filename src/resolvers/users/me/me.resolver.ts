@@ -8,16 +8,17 @@ export class MeResolver {
   private user = getRepository(Users);
 
   @Query(() => Users, { nullable: true })
-  async me(@Ctx() { req }: MyContext): Promise<Users | string> {
+  async me(@Ctx() { req }: MyContext): Promise<Users | null> {
     if (!req.session.userId) {
-      return "no session";
+      console.log("no session");
+      return null;
     }
 
     const _user = await this.user.findOne({ id: req.session.userId });
 
     if (!_user) {
-      console.log("ME QUERY ERROR");
-      return "no _user";
+      console.log("no _user");
+      return null;
     }
 
     const user = await this.user
@@ -27,7 +28,8 @@ export class MeResolver {
       .getOne();
 
     if (!user) {
-      return "no user";
+      console.log("no user");
+      return null;
     }
 
     return user;
