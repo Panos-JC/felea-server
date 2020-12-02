@@ -74,6 +74,7 @@ export class LoginResolver {
 
     // store userId in session
     req.session.userId = user.id;
+    console.log("[LOGIN]: ", req.session.userId);
 
     return { user };
   }
