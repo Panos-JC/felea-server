@@ -4,7 +4,6 @@ import { Individual } from "../../entities/Individual";
 import { SessionRequest } from "../../entities/SessionRequest";
 import { isAdminAuth } from "../../middleware/isAdminAuth";
 import { isIndividualAuth } from "../../middleware/isIndividualAuth";
-import { stripe } from "../../stripe";
 import { MyContext } from "../../types";
 import {
   RequestsByMentorResponse,
@@ -86,12 +85,6 @@ export class SessionRequestResolver {
       .innerJoinAndSelect("individual.user", "individualUser")
       .orderBy("session.createdAt", "DESC")
       .getMany();
-
-    const test = await stripe.paymentIntents.retrieve(
-      "pi_1HjQWaGUOvv7bpMIv4x3oZUJ"
-    );
-
-    console.log(test.status);
 
     return requests;
   }
