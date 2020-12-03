@@ -59,6 +59,23 @@ export class Mentor extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
+  availableDayFrom: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  availableDayUntill: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  availableTimeFrom: Date;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  availableTimeUntill: Date;
+
+  // Social Links
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   medium: string;
 
   @Field({ nullable: true })

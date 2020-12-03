@@ -14,6 +14,14 @@ export class MentorDetailsInput {
   location: string;
   @Field()
   languages: string;
+  @Field()
+  availableTimeFrom: Date;
+  @Field()
+  availableTimeUntill: Date;
+  @Field()
+  availableDayFrom: string;
+  @Field()
+  availableDayUntill: string;
 }
 
 @InputType()

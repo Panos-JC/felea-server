@@ -31,6 +31,10 @@ export class MentorDetailsResolver {
     mentor.rate = options.rate;
     mentor.location = options.location;
     mentor.languages = options.languages;
+    mentor.availableDayFrom = options.availableDayFrom;
+    mentor.availableDayUntill = options.availableDayUntill;
+    mentor.availableTimeFrom = options.availableTimeFrom;
+    mentor.availableTimeUntill = options.availableTimeUntill;
 
     await this.mentor.save(mentor);
 
