@@ -30,18 +30,6 @@ export class Individual extends BaseEntity {
   @Column({ default: false })
   premium!: boolean;
 
-  @Field()
-  @Column({ nullable: true, name: "stripe_customer_id" })
-  stripeCustomerId!: string;
-
-  @Field()
-  @Column({ nullable: true, name: "stripe_payment_method_id" })
-  stripePaymentMethodId!: string;
-
-  @Field()
-  @Column({ nullable: true, name: "subscription_id" })
-  subscriptionId!: string;
-
   // Relations
   @Field(() => Users)
   @OneToOne(() => Users, (user) => user.individual)
