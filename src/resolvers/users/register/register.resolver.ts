@@ -8,7 +8,11 @@ import { RegisterInput } from "./register.input";
 import { UserResponse } from "./register.response";
 import argon2 from "argon2";
 import { MyContext } from "../../../types";
-import { FRONTEND_URL, GENERATE_MENTOR_PREFIX } from "../../../constants";
+import {
+  FRONTEND_URL,
+  GENERATE_ADMIN_PREFIX,
+  GENERATE_MENTOR_PREFIX,
+} from "../../../constants";
 import { Mentor } from "../../../entities/Mentor";
 import { Admin } from "../../../entities/Admin";
 import { v4 } from "uuid";
@@ -60,6 +64,17 @@ export class RegisterResolver {
           {
             field: "email",
             message: "Email already exists",
+          },
+        ],
+      };
+    }
+
+    if (options.password !== options.repeatPassword) {
+      return {
+        errors: [
+          {
+            field: "repeatPassword",
+            message: "Passwords do not match",
           },
         ],
       };
@@ -159,6 +174,17 @@ export class RegisterResolver {
       };
     }
 
+    if (options.password !== options.repeatPassword) {
+      return {
+        errors: [
+          {
+            field: "repeatPassword",
+            message: "Passwords do not match",
+          },
+        ],
+      };
+    }
+
     //hash password
     const hashedPassword = await argon2.hash(options.password);
 
@@ -212,12 +238,24 @@ export class RegisterResolver {
   @Mutation(() => UserResponse)
   async registerAdmin(
     @Arg("options", () => RegisterInput) options: RegisterInput,
+    @Arg("token", () => String) token: string,
     @Ctx() { redis }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
 
     if (errors) return { errors };
+
+    const key = GENERATE_ADMIN_PREFIX + token;
+    const email = await redis.get(key);
+
+    if (!email) {
+      return {
+        errors: [
+          { field: "token", message: "Token has expired, please contact us." },
+        ],
+      };
+    }
 
     // check if email already exists
     const result = await Users.findOne({ email: options.email });
@@ -228,6 +266,17 @@ export class RegisterResolver {
           {
             field: "email",
             message: "Email already exists",
+          },
+        ],
+      };
+    }
+
+    if (options.password !== options.repeatPassword) {
+      return {
+        errors: [
+          {
+            field: "repeatPassword",
+            message: "Passwords do not match",
           },
         ],
       };
@@ -276,6 +325,8 @@ export class RegisterResolver {
         link: `${FRONTEND_URL}/user/activate/${token}`,
       });
     }
+
+    redis.del(key);
 
     return { user };
   }

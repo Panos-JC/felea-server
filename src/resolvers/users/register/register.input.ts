@@ -10,6 +10,8 @@ export class RegisterInput {
   email: string;
   @Field()
   password: string;
+  @Field()
+  repeatPassword: string;
   @Field({ nullable: true })
   code?: string;
 }

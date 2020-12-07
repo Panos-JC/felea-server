@@ -10,7 +10,11 @@ import { Admin } from "../../entities/Admin";
 import { v4 } from "uuid";
 import { Users } from "../../entities/Users";
 import { MyContext } from "../../types";
-import { FRONTEND_URL, GENERATE_MENTOR_PREFIX } from "../../constants";
+import {
+  FRONTEND_URL,
+  GENERATE_ADMIN_PREFIX,
+  GENERATE_MENTOR_PREFIX,
+} from "../../constants";
 import { isAdminAuth } from "../../middleware/isAdminAuth";
 import { send } from "../../utils/send";
 import { GenerateUserResponse } from "./admin.response";
@@ -74,7 +78,7 @@ export class AdminResolver {
     const token = v4();
 
     await redis.set(
-      GENERATE_MENTOR_PREFIX + token,
+      GENERATE_ADMIN_PREFIX + token,
       email,
       "ex",
       1000 * 60 * 60 * 24 * 7 // 7 days
