@@ -213,7 +213,7 @@ export class MentorResolver {
     // get mentor by user id
     const mentor = await Mentor.findOne({
       where: { user: { id: req.session.userId } },
-      relations: ["expertises", "workExperience"],
+      relations: ["expertises", "user"],
     });
 
     if (!mentor) {
@@ -237,14 +237,19 @@ export class MentorResolver {
       messages.push("Update your bio");
     }
 
+    if (!mentor.motto) {
+      mentor.profileComplete = false;
+      messages.push("Update your motto");
+    }
+
+    if (!mentor.user.avatar) {
+      mentor.profileComplete = false;
+      messages.push("Upload an Avatar");
+    }
+
     if (mentor.expertises.length < 1) {
       mentor.profileComplete = false;
       messages.push("Add your expertise");
-    }
-
-    if (mentor.workExperience.length < 1) {
-      mentor.profileComplete = false;
-      messages.push("Add your work experience");
     }
 
     if (messages.length > 0) {
