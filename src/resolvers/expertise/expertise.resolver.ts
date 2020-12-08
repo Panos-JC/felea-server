@@ -24,20 +24,12 @@ export class ExpertiseResolver {
   @Mutation(() => ExpertiseResponse)
   @UseMiddleware(isMentorAuth)
   async createExpertise(
+    @Ctx() { req }: MyContext,
     @Arg("skillName", () => String) skillName: string,
-    @Arg("description") description: string,
-    @Arg("descriptionText") descriptionText: string,
-    @Ctx() { req }: MyContext
+    @Arg("description", () => String, { nullable: true }) description?: string,
+    @Arg("descriptionText", () => String, { nullable: true })
+    descriptionText?: string
   ): Promise<ExpertiseResponse> {
-    if (!descriptionText.replace(/\s+/g, "")) {
-      return {
-        error: {
-          field: "description",
-          message: "This field must not be empty",
-        },
-      };
-    }
-
     if (!skillName.replace(/\s+/g, "")) {
       return {
         error: { field: "skill", message: "This field must not be empty" },

@@ -20,12 +20,12 @@ export class Expertise extends BaseEntity {
   id!: number;
 
   @Field()
-  @Column("text")
-  description: string;
+  @Column("text", { nullable: true })
+  description?: string;
 
   @Field()
-  @Column("text")
-  descriptionText: string;
+  @Column("text", { nullable: true })
+  descriptionText?: string;
 
   // relations
   @Field()
