@@ -7,9 +7,9 @@ export class EducationInput {
   @Field()
   school: string;
   @Field()
-  from: string;
+  from: Date;
   @Field()
-  untill: string;
+  untill: Date;
   @Field()
   description: string;
 }

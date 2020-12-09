@@ -25,7 +25,7 @@ export class Certificate extends BaseEntity {
   @Column()
   organization!: string;
 
-  @Field(() => String)
+  @Field(() => Date)
   @Column()
   date!: Date;
 

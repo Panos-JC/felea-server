@@ -7,7 +7,7 @@ export class CertificateInput {
   @Field()
   organization!: string;
   @Field()
-  date!: string;
+  date!: Date;
   @Field()
   description!: string;
 }

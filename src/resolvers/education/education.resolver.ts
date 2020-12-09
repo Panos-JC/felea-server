@@ -41,6 +41,7 @@ export class EducationResolver {
     const educations = await this.education
       .createQueryBuilder("education")
       .where('education."mentorId" = :mentorId', { mentorId: mentor.id })
+      .orderBy('education."endDate"', "DESC")
       .getMany();
 
     return { data: educations };
@@ -86,8 +87,8 @@ export class EducationResolver {
 
     education.title = input.title;
     education.school = input.school;
-    education.startDate = new Date(parseInt(input.from));
-    education.endDate = new Date(parseInt(input.untill));
+    education.startDate = input.from;
+    education.endDate = input.untill;
     education.description = input.description;
     await this.education.save(education);
 

@@ -25,11 +25,11 @@ export class Education extends BaseEntity {
   @Column()
   school!: string;
 
-  @Field(() => String)
+  @Field(() => Date)
   @Column()
   startDate!: Date;
 
-  @Field(() => String)
+  @Field(() => Date)
   @Column()
   endDate!: Date;
 

@@ -66,7 +66,7 @@ export class CertificateResolver {
     const certificate = new Certificate();
     certificate.title = input.title;
     certificate.organization = input.organization;
-    certificate.date = new Date(parseInt(input.date));
+    certificate.date = input.date;
     certificate.description = input.description;
     certificate.mentor = mentor;
     await this.certificate.save(certificate);
@@ -88,7 +88,7 @@ export class CertificateResolver {
 
     certificate.title = input.title;
     certificate.organization = input.organization;
-    certificate.date = new Date(parseInt(input.date));
+    certificate.date = input.date;
     certificate.description = input.description;
     await this.certificate.save(certificate);
 
