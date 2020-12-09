@@ -5,10 +5,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Company } from "./Company";
+import { SessionRequest } from "./SessionRequest";
 import { Users } from "./Users";
 
 @ObjectType()
@@ -39,4 +41,11 @@ export class Individual extends BaseEntity {
   @Field(() => Company)
   @ManyToOne(() => Company, { nullable: true })
   company: Company;
+
+  @Field(() => [SessionRequest])
+  @OneToMany(() => SessionRequest, (session) => session.individual)
+  sessionRequests: SessionRequest[];
+
+  @Field(() => Int)
+  sessionRequestsCount: number;
 }

@@ -52,7 +52,7 @@ export class SessionRequest extends BaseEntity {
 
   // Relations
   @Field(() => Individual)
-  @ManyToOne(() => Individual)
+  @ManyToOne(() => Individual, (individual) => individual.sessionRequests)
   individual: Individual;
 
   @Field(() => Mentor)
