@@ -249,7 +249,7 @@ export class MentorResolver {
 
     if (mentor.expertises.length < 1) {
       mentor.profileComplete = false;
-      messages.push("Add your expertise");
+      messages.push("Add your skills");
     }
 
     if (messages.length > 0) {
