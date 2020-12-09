@@ -265,7 +265,7 @@ export class AdminMentorInfoResolver {
     const certificate = new Certificate();
     certificate.title = input.title;
     certificate.organization = input.organization;
-    certificate.date = new Date(parseInt(input.date));
+    certificate.date = input.date;
     certificate.description = input.description;
     certificate.mentor = mentor;
     await this.certificateRepository.save(certificate);
