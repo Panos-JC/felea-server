@@ -1,37 +1,27 @@
 import {
   Arg,
   Ctx,
-  Field,
   Mutation,
-  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { Admin } from "../entities/Admin";
-import { Company } from "../entities/Company";
-import { isAdminAuth } from "../middleware/isAdminAuth";
-import { MyContext } from "../types";
-import { CreateCompanyInput } from "./inputTypes/CreateCompanyInput";
+import { Admin } from "../../entities/Admin";
+import { Company } from "../../entities/Company";
+import { isAdminAuth } from "../../middleware/isAdminAuth";
+import { MyContext } from "../../types";
+import { CreateCompanyInput } from "../inputTypes/CreateCompanyInput";
 import { nanoid } from "nanoid";
-
-@ObjectType()
-class createCompanyResponse {
-  @Field(() => String, { nullable: true })
-  errorMsg?: string;
-
-  @Field(() => Company, { nullable: true })
-  company?: Company;
-}
+import { CreateCompanyResponse } from "./company.response";
 
 @Resolver()
 export class CompanyResolver {
-  @Mutation(() => createCompanyResponse)
+  @Mutation(() => CreateCompanyResponse)
   @UseMiddleware(isAdminAuth)
   async createCompany(
     @Arg("input", () => CreateCompanyInput) input: CreateCompanyInput,
     @Ctx() { req }: MyContext
-  ): Promise<createCompanyResponse> {
+  ): Promise<CreateCompanyResponse> {
     const admin = await Admin.findOne({
       where: { user: { id: req.session.userId } },
     });
