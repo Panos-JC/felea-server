@@ -18,7 +18,7 @@ import { ReviewResolver } from "./resolvers/review";
 import { SkillResolver } from "./resolvers/skill";
 import { WorkExperienceResolver } from "./resolvers/workExperience/workExperience.resolver";
 import { SessionRequestResolver } from "./resolvers/sessionRequest/sessionRequest.resolver";
-import { CompanyResolver } from "./resolvers/company";
+import { CompanyResolver } from "./resolvers/company/company.resolver";
 import { RegisterResolver } from "./resolvers/users/register/register.resolver";
 import { AvatarResolver } from "./resolvers/users/avatar/avatar.resolver";
 import { ChangePasswordResolver } from "./resolvers/users/changePassword/changePassword.resolver";
