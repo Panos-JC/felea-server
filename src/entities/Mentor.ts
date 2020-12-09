@@ -76,6 +76,10 @@ export class Mentor extends BaseEntity {
   // Social Links
   @Field({ nullable: true })
   @Column({ nullable: true })
+  website: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   medium: string;
 
   @Field({ nullable: true })

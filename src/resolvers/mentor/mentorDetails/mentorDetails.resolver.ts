@@ -62,6 +62,7 @@ export class MentorDetailsResolver {
     mentor.medium = links.medium || "";
     mentor.twitter = links.twitter || "";
     mentor.linkedin = links.linkedin || "";
+    mentor.website = links.website || "";
 
     await this.mentor.save(mentor);
 

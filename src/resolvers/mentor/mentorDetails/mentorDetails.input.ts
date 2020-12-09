@@ -36,4 +36,6 @@ export class SocialLinksInput {
   twitter?: string;
   @Field()
   instagram?: string;
+  @Field()
+  website?: string;
 }
