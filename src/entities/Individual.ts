@@ -2,13 +2,16 @@ import { Field, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
+import { Admin } from "./Admin";
 import { Company } from "./Company";
 import { SessionRequest } from "./SessionRequest";
 import { Users } from "./Users";
@@ -38,13 +41,26 @@ export class Individual extends BaseEntity {
   @JoinColumn({ name: "user_id" })
   user: Users;
 
-  @Field(() => Company)
+  @Field(() => Company, { nullable: true })
   @ManyToOne(() => Company, { nullable: true })
   company: Company;
+
+  @Field(() => Admin, { nullable: true })
+  @ManyToOne(() => Admin, { nullable: true })
+  facilitator: Admin;
 
   @Field(() => [SessionRequest])
   @OneToMany(() => SessionRequest, (session) => session.individual)
   sessionRequests: SessionRequest[];
+
+  // created at & updated at
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Field(() => Int)
   sessionRequestsCount: number;

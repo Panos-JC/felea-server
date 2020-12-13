@@ -24,7 +24,14 @@ export class IndividualResolver {
 
   @Query(() => [Individual])
   async individuals(): Promise<Individual[]> {
-    const individuals = await Individual.find({ relations: ["user"] });
+    const individuals = await this.individualRepository.find({
+      relations: ["user", "facilitator", "company", "facilitator.user"],
+      order: {
+        createdAt: "ASC",
+      },
+    });
+
+    console.log(individuals);
 
     return individuals;
   }
