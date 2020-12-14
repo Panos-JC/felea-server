@@ -225,7 +225,8 @@ export class MentorResolver {
     if (
       !mentor.title ||
       !mentor.rate ||
-      !mentor.location ||
+      !mentor.country ||
+      mentor.city ||
       !mentor.languages
     ) {
       mentor.profileComplete = false;

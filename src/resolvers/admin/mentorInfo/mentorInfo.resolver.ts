@@ -165,7 +165,8 @@ export class AdminMentorInfoResolver {
     mentor.lastName = options.lastName;
     mentor.title = options.title;
     mentor.rate = options.rate;
-    mentor.location = options.location;
+    mentor.country = options.country;
+    mentor.city = options.city;
     mentor.languages = options.languages;
 
     await this.mentorRepository.save(mentor);
