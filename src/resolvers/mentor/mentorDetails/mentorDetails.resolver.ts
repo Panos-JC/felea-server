@@ -29,7 +29,8 @@ export class MentorDetailsResolver {
     mentor.lastName = options.lastName;
     mentor.title = options.title;
     mentor.rate = options.rate;
-    mentor.location = options.location;
+    mentor.country = options.country;
+    mentor.city = options.city;
     mentor.languages = options.languages;
     mentor.availableDayFrom = options.availableDayFrom;
     mentor.availableDayUntill = options.availableDayUntill;

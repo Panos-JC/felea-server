@@ -11,7 +11,9 @@ export class MentorDetailsInput {
   @Field()
   rate: string;
   @Field()
-  location: string;
+  country: string;
+  @Field()
+  city: string;
   @Field()
   languages: string;
   @Field()
