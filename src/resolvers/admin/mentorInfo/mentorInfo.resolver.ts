@@ -279,18 +279,10 @@ export class AdminMentorInfoResolver {
   async createExpertiseByAdmin(
     @Arg("mentorId", () => Int) mentorId: number,
     @Arg("skillName", () => String) skillName: string,
-    @Arg("description") description: string,
-    @Arg("descriptionText") descriptionText: string
+    @Arg("description", () => String, { nullable: true }) description?: string,
+    @Arg("descriptionText", () => String, { nullable: true })
+    descriptionText?: string
   ): Promise<ExpertiseResponse> {
-    if (!descriptionText.replace(/\s+/g, "")) {
-      return {
-        error: {
-          field: "description",
-          message: "This field must not be empty",
-        },
-      };
-    }
-
     if (!skillName.replace(/\s+/g, "")) {
       return {
         error: { field: "skill", message: "This field must not be empty" },
