@@ -111,6 +111,9 @@ const main = async () => {
   apolloServer.applyMiddleware({
     app,
     cors: false, // OR { origin: "http://localhost:3000" },
+    bodyParserConfig: {
+      limit: "11mb",
+    },
   });
 
   const port = process.env.PORT || 4000;

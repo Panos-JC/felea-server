@@ -18,6 +18,7 @@ import { Skill } from "../../../entities/Skill";
 import { Users } from "../../../entities/Users";
 import { WorkExperience } from "../../../entities/WorkExperience";
 import { isAdminAuth } from "../../../middleware/isAdminAuth";
+import cloudinary from "../../../utils/cloudinary";
 import { CertificateInput } from "../../certificate/certificate.input";
 import { CertificateResponse } from "../../certificate/certificate.response";
 import { EducationInput } from "../../education/education.input";
@@ -25,6 +26,7 @@ import { EducationResponse } from "../../education/education.response";
 import { ExpertiseResponse } from "../../expertise/expertise.response";
 import { MentorDetailsInput } from "../../mentor/mentorDetails/mentorDetails.input";
 import { MentorResponse } from "../../mentor/mentorDetails/mentorDetails.response";
+import { AvatarResponse } from "../../users/avatar/avatar.response";
 import { WorkExperienceInput } from "../../workExperience/workExperience.input";
 import { WorkExperienceResponse } from "../../workExperience/workExperience.response";
 import { GetResponse } from "./mentorInfo.response";
@@ -77,32 +79,44 @@ export class AdminMentorInfoResolver {
     return { result: mentor.user.avatar };
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => AvatarResponse)
   async addAvatarByAdmin(
-    @Arg("avatarUrl") avatarUrl: string,
-    @Arg("publicId") publicId: string,
+    @Arg("photo", () => String) photo: string,
     @Arg("mentorId", () => Int) mentorId: number
-  ): Promise<Boolean> {
+  ): Promise<AvatarResponse> {
     const mentor = await this.mentorRepository.findOne({
       where: { id: mentorId },
       relations: ["user"],
     });
 
     if (!mentor) {
-      return false;
+      return { errorMsg: "Mentor not found." };
     }
 
     const user = await this.userRepository.findOne(mentor.user.id);
 
     if (!user) {
-      return false;
+      return { errorMsg: "User not found." };
     }
 
-    user.avatar = avatarUrl;
-    user.avatarPublicId = publicId;
-    await this.userRepository.save(user);
+    try {
+      const result = await cloudinary.uploader.upload(photo, {
+        width: 600,
+        height: 600,
+        gravity: "face",
+        zoom: "0.5",
+        crop: "thumb",
+      });
 
-    return true;
+      user.avatar = result.secure_url;
+      user.avatarPublicId = result.public_id;
+      await this.userRepository.save(user);
+
+      return { user };
+    } catch (error) {
+      console.log(error);
+      return { errorMsg: "Something went wrnog." };
+    }
   }
 
   @Mutation(() => Boolean)
