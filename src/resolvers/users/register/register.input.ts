@@ -12,6 +12,20 @@ export class RegisterInput {
   password: string;
   @Field()
   repeatPassword: string;
-  @Field({ nullable: true })
-  code?: string;
+}
+
+@InputType()
+export class IndividualRegisterInput {
+  @Field()
+  firstName: string;
+  @Field()
+  lastName: string;
+  @Field()
+  email: string;
+  @Field()
+  password: string;
+  @Field()
+  repeatPassword: string;
+  @Field()
+  code: string;
 }

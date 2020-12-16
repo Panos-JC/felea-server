@@ -4,7 +4,7 @@ import { Company } from "../../../entities/Company";
 import { Individual } from "../../../entities/Individual";
 import { Users } from "../../../entities/Users";
 import { validateRegister } from "../../../utils/validateRegister";
-import { RegisterInput } from "./register.input";
+import { IndividualRegisterInput, RegisterInput } from "./register.input";
 import { UserResponse } from "./register.response";
 import argon2 from "argon2";
 import { MyContext } from "../../../types";
@@ -23,13 +23,25 @@ export class RegisterResolver {
   @Mutation(() => UserResponse)
   // === REGISTER INDIVIDUAL MUTATION ===
   async registerIndividual(
-    @Arg("options", () => RegisterInput) options: RegisterInput,
+    @Arg("options", () => IndividualRegisterInput)
+    options: IndividualRegisterInput,
     @Ctx() { redis }: MyContext
   ): Promise<UserResponse> {
     // validate options
     const errors = validateRegister(options);
 
     if (errors) return { errors };
+
+    if (!options.code) {
+      return {
+        errors: [
+          {
+            field: "code",
+            message: "This field is required",
+          },
+        ],
+      };
+    }
 
     const company = await Company.findOne({ where: { code: options.code } });
 
