@@ -112,7 +112,7 @@ const main = async () => {
     app,
     cors: false, // OR { origin: "http://localhost:3000" },
     bodyParserConfig: {
-      limit: "11mb",
+      limit: "50mb",
     },
   });
 
