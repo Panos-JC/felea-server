@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Expertise } from "./Expertise";
 
 @ObjectType()
 @Entity()
@@ -22,6 +24,11 @@ export class Skill extends BaseEntity {
   @Field()
   @Column({ unique: true })
   nameLowercase!: string;
+
+  // relations
+  @Field(() => Expertise)
+  @OneToMany(() => Expertise, (expertiese) => expertiese.skill)
+  expertise: Expertise;
 
   // created at & updated at
   @Field(() => String)

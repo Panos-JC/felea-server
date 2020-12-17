@@ -29,7 +29,7 @@ export class Expertise extends BaseEntity {
 
   // relations
   @Field()
-  @ManyToOne(() => Skill)
+  @ManyToOne(() => Skill, (skill) => skill.expertise)
   @JoinColumn({ name: "skill_id" })
   skill: Skill;
 
