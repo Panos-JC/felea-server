@@ -15,7 +15,7 @@ import { IndividualResolver } from "./resolvers/individual/individual";
 import { IndustryResolver } from "./resolvers/industry";
 import { MentorResolver } from "./resolvers/mentor/mentor.resolver";
 import { ReviewResolver } from "./resolvers/review";
-import { SkillResolver } from "./resolvers/skill";
+import { SkillResolver } from "./resolvers/skill/skill.resolver";
 import { WorkExperienceResolver } from "./resolvers/workExperience/workExperience.resolver";
 import { SessionRequestResolver } from "./resolvers/sessionRequest/sessionRequest.resolver";
 import { CompanyResolver } from "./resolvers/company/company.resolver";
