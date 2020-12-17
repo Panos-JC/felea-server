@@ -77,7 +77,7 @@ export class WorkExperienceResolver {
     experience.description = input.description;
     experience.industries = [];
 
-    // create work experiences if they dont exist
+    // create industries if they dont exist
     for (const ind of input.industries) {
       const industry = await this.industry.findOne({
         where: { nameLowercase: ind.toLowerCase() },
@@ -108,14 +108,6 @@ export class WorkExperienceResolver {
     @Arg("id", () => Int) id: number,
     @Arg("input", () => WorkExperienceInput) input: WorkExperienceInput
   ): Promise<WorkExperienceResponse> {
-    // Get industries
-    const industries = await this.industry
-      .createQueryBuilder("industry")
-      .where("industry.name_lowercase IN (:...industries)", {
-        industries: input.industries,
-      })
-      .getMany();
-
     // Get work experience
     const workExperience = await this.experience.findOne(id);
 
@@ -130,10 +122,32 @@ export class WorkExperienceResolver {
     workExperience.from = input.from;
     workExperience.untill = input.untill;
     workExperience.description = input.description;
-    workExperience.industries = industries;
-    this.experience.save(workExperience);
+    workExperience.industries = [];
 
-    return { workExperience };
+    // create industries if they dont exist
+    for (const ind of input.industries) {
+      const industry = await this.industry.findOne({
+        where: { nameLowercase: ind.toLowerCase() },
+      });
+
+      if (industry) {
+        workExperience.industries = [...workExperience.industries, industry];
+      } else {
+        const newIndustry = new Industry();
+        newIndustry.name = ind;
+        newIndustry.nameLowercase = ind.toLowerCase();
+
+        const savedIndustry = await this.industry.save(newIndustry);
+        workExperience.industries = [
+          ...workExperience.industries,
+          savedIndustry,
+        ];
+      }
+    }
+
+    const updatedExperience = await this.experience.save(workExperience);
+
+    return { workExperience: updatedExperience };
   }
 
   // === DELETE WORK EXPERIENCE MUTATION ===
