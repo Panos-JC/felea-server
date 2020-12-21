@@ -28,6 +28,20 @@ export class AdminResolver {
   private userRepository = getRepository(Users);
   private individualRepository = getRepository(Individual);
 
+  @Query(() => Admin)
+  async admin(@Arg("adminId", () => Int) adminId: number): Promise<Admin> {
+    const admin = await this.adminRepository.findOne({
+      where: { id: adminId },
+      relations: ["user"],
+    });
+
+    if (!admin) {
+      throw new Error("not found");
+    }
+
+    return admin;
+  }
+
   @Query(() => [Admin])
   async admins(): Promise<Admin[]> {
     const admins = await this.adminRepository.find({ relations: ["user"] });
