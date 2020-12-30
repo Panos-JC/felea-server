@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { WorkExperience } from "./WorkExperience";
 
 @ObjectType()
 @Entity()
@@ -23,12 +25,12 @@ export class Industry extends BaseEntity {
   @Column({ unique: true, name: "name_lowercase" })
   nameLowercase!: string;
 
-  // @Field(() => [WorkExperienceIndustries])
-  // @OneToMany(
-  //   () => WorkExperienceIndustries,
-  //   (workExperienceIndustry) => workExperienceIndustry.industry
-  // )
-  // workExperienceIndustries: WorkExperienceIndustries[];
+  @Field(() => [WorkExperience])
+  @ManyToMany(
+    () => WorkExperience,
+    (workExperience) => workExperience.industries
+  )
+  workExperiences: WorkExperience[];
 
   // created at & updated at
   @Field(() => String)
