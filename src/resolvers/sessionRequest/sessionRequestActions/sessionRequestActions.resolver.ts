@@ -22,14 +22,15 @@ export class SessionRequestActionsResolver {
   @Mutation(() => RequestActionResponse)
   @UseMiddleware(isMentorAuth)
   async acceptRequest(
-    @Arg("requestId", () => Int) requestId: number
+    @Arg("requestId", () => Int) requestId: number,
+    @Arg("date", () => String) date: string
   ): Promise<RequestActionResponse> {
     const request = await this.sessionRequestRepository.findOne(requestId);
 
     if (!request) {
       return { errorMsg: "Request not found" };
     }
-
+    request.selectedDate = new Date(date);
     request.status = "accepted";
     await request.save();
 
@@ -100,6 +101,9 @@ export class SessionRequestActionsResolver {
     sessionRequest.email = input.email;
     sessionRequest.communicationTool = input.communicationTool;
     sessionRequest.communicationToolId = input.communicationToolId;
+    sessionRequest.suggestedDate1 = input.suggestedDate1;
+    sessionRequest.suggestedDate2 = input.suggestedDate2;
+    sessionRequest.suggestedDate3 = input.suggestedDate3;
     sessionRequest.message = input.message;
     sessionRequest.ammount = input.ammount;
 

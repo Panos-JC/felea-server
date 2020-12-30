@@ -13,6 +13,12 @@ export class SessionRequestInput {
   @Field()
   communicationToolId: string;
   @Field()
+  suggestedDate1: Date;
+  @Field()
+  suggestedDate2: Date;
+  @Field()
+  suggestedDate3: Date;
+  @Field()
   message: string;
   @Field()
   ammount: number;

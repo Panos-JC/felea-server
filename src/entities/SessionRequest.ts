@@ -50,6 +50,22 @@ export class SessionRequest extends BaseEntity {
   @Column()
   ammount: number;
 
+  @Field()
+  @Column()
+  suggestedDate1: Date;
+
+  @Field()
+  @Column()
+  suggestedDate2: Date;
+
+  @Field()
+  @Column()
+  suggestedDate3: Date;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, default: null })
+  selectedDate: Date;
+
   // Relations
   @Field(() => Individual)
   @ManyToOne(() => Individual, (individual) => individual.sessionRequests)
