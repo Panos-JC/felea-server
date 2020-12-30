@@ -40,15 +40,19 @@ export class SkillResolver {
       return { errorMsg: "Skill not found" };
     }
 
-    if (newName.toLowerCase() === skill.nameLowercase) {
-      skill.name = newName;
-    } else {
-      return { errorMsg: "Name does not match lowercase." };
+    skill.name = newName;
+    skill.nameLowercase = newName.toLowerCase();
+
+    try {
+      const savedSkill = await this.skillRepository.save(skill);
+      return { skill: savedSkill };
+    } catch (error) {
+      console.log(error);
+      if (error.code === "23505") {
+        return { errorMsg: "Skill already exists" };
+      }
+      return { errorMsg: "Something went wrong" };
     }
-
-    const savedSkill = await this.skillRepository.save(skill);
-
-    return { skill: savedSkill };
   }
 
   @Mutation(() => DeleteSkillResponse)
