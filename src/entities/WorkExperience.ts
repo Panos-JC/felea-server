@@ -42,7 +42,7 @@ export class WorkExperience extends BaseEntity {
   untill!: Date;
 
   @Field(() => [Industry], { nullable: true })
-  @ManyToMany(() => Industry)
+  @ManyToMany(() => Industry, (industries) => industries.workExperiences)
   @JoinTable()
   industries: Industry[];
 
