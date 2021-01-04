@@ -12,7 +12,7 @@ import { COOKIE_NAME, __prod__ } from "./constants";
 import { AdminResolver } from "./resolvers/admin/admin.resolver";
 import { ExpertiseResolver } from "./resolvers/expertise/expertise.resolver";
 import { IndividualResolver } from "./resolvers/individual/individual";
-import { IndustryResolver } from "./resolvers/industry";
+import { IndustryResolver } from "./resolvers/industry/industry.resolver";
 import { MentorResolver } from "./resolvers/mentor/mentor.resolver";
 import { ReviewResolver } from "./resolvers/review";
 import { SkillResolver } from "./resolvers/skill/skill.resolver";
