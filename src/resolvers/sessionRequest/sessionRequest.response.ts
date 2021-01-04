@@ -15,6 +15,9 @@ class RequestsTypes {
   declined: SessionRequest[];
 
   @Field(() => [SessionRequest])
+  canceled: SessionRequest[];
+
+  @Field(() => [SessionRequest])
   completed: SessionRequest[];
 }
 

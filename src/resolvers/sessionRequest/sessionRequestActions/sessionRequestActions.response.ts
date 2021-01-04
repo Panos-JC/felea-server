@@ -30,3 +30,21 @@ export class CreateRequestResponse {
   @Field(() => SessionRequest, { nullable: true })
   sessionRequest?: SessionRequest;
 }
+
+@ObjectType()
+export class DeleteRequestResponse {
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  deleted?: boolean;
+}
+
+@ObjectType()
+export class CancelRequestResponse {
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  canceled?: boolean;
+}

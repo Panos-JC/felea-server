@@ -4,11 +4,14 @@ import { Individual } from "../../../entities/Individual";
 import { Mentor } from "../../../entities/Mentor";
 import { SessionRequest } from "../../../entities/SessionRequest";
 import { isAdminAuth } from "../../../middleware/isAdminAuth";
+import { isIndividualAuth } from "../../../middleware/isIndividualAuth";
 import { isMentorAuth } from "../../../middleware/isMentorAuth";
 import { MyContext } from "../../../types";
 import { SessionRequestInput } from "./sessionRequestActions.input";
 import {
+  CancelRequestResponse,
   CreateRequestResponse,
+  DeleteRequestResponse,
   RequestActionResponse,
   SetRequestCompleteResponse,
 } from "./sessionRequestActions.response";
@@ -110,5 +113,53 @@ export class SessionRequestActionsResolver {
     await this.sessionRequestRepository.save(sessionRequest);
 
     return { sessionRequest };
+  }
+
+  @Mutation(() => DeleteRequestResponse)
+  @UseMiddleware(isIndividualAuth)
+  async deleteRequestByUser(
+    @Arg("reqId", () => Int) reqId: number
+  ): Promise<DeleteRequestResponse> {
+    const request = await this.sessionRequestRepository.findOne(reqId);
+
+    if (!request) {
+      return { errorMsg: "Request not found" };
+    }
+
+    if (request.status !== "pending") {
+      return { errorMsg: "Request is already accepted" };
+    }
+
+    try {
+      await this.sessionRequestRepository.remove(request);
+      return { deleted: true };
+    } catch (error) {
+      return { deleted: false, errorMsg: "Something went wrong" };
+    }
+  }
+
+  @Mutation(() => CancelRequestResponse)
+  async cancelRequest(
+    @Arg("reqId", () => Int) reqId: number
+  ): Promise<CancelRequestResponse> {
+    const request = await this.sessionRequestRepository.findOne(reqId);
+
+    if (!request) {
+      return { errorMsg: "Request not found" };
+    }
+
+    if (request.status !== "accepted") {
+      return { errorMsg: "Wrong request status" };
+    }
+
+    request.status = "canceled";
+
+    try {
+      await this.sessionRequestRepository.save(request);
+      return { canceled: true };
+    } catch (error) {
+      console.log(error);
+      return { errorMsg: "Something went wrong", canceled: false };
+    }
   }
 }

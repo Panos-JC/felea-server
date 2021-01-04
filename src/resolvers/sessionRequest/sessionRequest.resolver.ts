@@ -31,6 +31,7 @@ export class SessionRequestResolver {
       .innerJoinAndSelect("mentor.user", "mentorUser")
       .where("mentorUser.id = :id", { id: req.session.userId })
       .andWhere("sessionRequest.status = 'pending'")
+      .orderBy("sessionRequest.createdAt", "DESC")
       .getMany();
 
     const accepted = await getConnection()
@@ -42,6 +43,7 @@ export class SessionRequestResolver {
       .innerJoinAndSelect("mentor.user", "mentorUser")
       .where("mentorUser.id = :id", { id: req.session.userId })
       .andWhere("sessionRequest.status = 'accepted'")
+      .orderBy("sessionRequest.createdAt", "DESC")
       .getMany();
 
     const declined = await getConnection()
@@ -53,6 +55,19 @@ export class SessionRequestResolver {
       .innerJoinAndSelect("mentor.user", "mentorUser")
       .where("mentorUser.id = :id", { id: req.session.userId })
       .andWhere("sessionRequest.status = 'declined'")
+      .orderBy("sessionRequest.createdAt", "DESC")
+      .getMany();
+
+    const canceled = await getConnection()
+      .getRepository(SessionRequest)
+      .createQueryBuilder("sessionRequest")
+      .innerJoinAndSelect("sessionRequest.mentor", "mentor")
+      .innerJoinAndSelect("sessionRequest.individual", "individual")
+      .innerJoinAndSelect("individual.user", "individualUser")
+      .innerJoinAndSelect("mentor.user", "mentorUser")
+      .where("mentorUser.id = :id", { id: req.session.userId })
+      .andWhere("sessionRequest.status = 'canceled'")
+      .orderBy("sessionRequest.createdAt", "DESC")
       .getMany();
 
     const completed = await getConnection()
@@ -66,11 +81,11 @@ export class SessionRequestResolver {
       .andWhere("sessionRequest.status = 'complete'")
       .getMany();
 
-    if (!pending || !accepted || !declined || !completed) {
+    if (!pending || !accepted || !declined || !canceled || !completed) {
       return { errorMsg: "Something went wrong" };
     }
 
-    return { requests: { accepted, pending, declined, completed } };
+    return { requests: { accepted, pending, declined, canceled, completed } };
   }
 
   @Query(() => [SessionRequest])
