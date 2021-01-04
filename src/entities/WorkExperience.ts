@@ -37,9 +37,13 @@ export class WorkExperience extends BaseEntity {
   @Column()
   from!: Date;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  untill?: Date;
+
   @Field()
-  @Column()
-  untill!: Date;
+  @Column({ default: false })
+  present!: boolean;
 
   @Field(() => [Industry], { nullable: true })
   @ManyToMany(() => Industry, (industries) => industries.workExperiences)

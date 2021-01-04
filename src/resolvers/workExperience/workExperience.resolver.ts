@@ -48,7 +48,7 @@ export class WorkExperienceResolver {
       .createQueryBuilder("experience")
       .innerJoinAndSelect("experience.industries", "industry")
       .where("experience.mentor_id = :mentorId", { mentorId: mentor.id })
-      .orderBy("experience.untill", "DESC")
+      .orderBy("experience.from", "DESC")
       .getMany();
 
     return { data: experience };
@@ -74,6 +74,7 @@ export class WorkExperienceResolver {
     experience.companyName = input.companyName;
     experience.from = input.from;
     experience.untill = input.untill;
+    experience.present = input.present;
     experience.description = input.description;
     experience.industries = [];
 
@@ -121,6 +122,7 @@ export class WorkExperienceResolver {
     workExperience.companyName = input.companyName;
     workExperience.from = input.from;
     workExperience.untill = input.untill;
+    workExperience.present = input.present;
     workExperience.description = input.description;
     workExperience.industries = [];
 

@@ -10,8 +10,10 @@ export class WorkExperienceInput {
   description: string;
   @Field()
   from: Date;
+  @Field({ nullable: true })
+  untill?: Date;
   @Field()
-  untill: Date;
+  present: boolean;
   @Field(() => [String])
   industries: string[];
 }
