@@ -35,6 +35,7 @@ import { AdminMentorInfoResolver } from "./resolvers/admin/mentorInfo/mentorInfo
 import { DeleteIndividualResolver } from "./resolvers/individual/deleteIndividual/deleteIndividual.resolver";
 import { DeleteMentorResolver } from "./resolvers/mentor/deleteMentor/deleteMentor.resolver";
 import { DeleteAdminResolver } from "./resolvers/admin/deleteAdmin.deleteAdmin.resolver";
+import { ProductResolver } from "./resolvers/product/product.resolver";
 
 const main = async () => {
   await createConnection();
@@ -77,6 +78,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
+        ProductResolver,
         DeleteAdminResolver,
         DeleteMentorResolver,
         DeleteIndividualResolver,
