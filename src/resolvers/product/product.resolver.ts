@@ -1,11 +1,21 @@
-import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import {
+  Arg,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { getRepository } from "typeorm";
 import { Product } from "../../entities/Product";
 import { isAdminAuth } from "../../middleware/isAdminAuth";
 import { isAuth } from "../../middleware/isAuth";
 import cloudinary from "../../utils/cloudinary";
 import { ProductInput } from "./product.input";
-import { CreateProductResponse } from "./product.response";
+import {
+  CreateProductResponse,
+  DeleteProductResponse,
+} from "./product.response";
 
 @Resolver()
 export class ProductResolver {
@@ -56,6 +66,26 @@ export class ProductResolver {
     } catch (error) {
       console.log(error);
       return { error: { field: "general", message: "Something went wrong" } };
+    }
+  }
+
+  @Mutation(() => DeleteProductResponse)
+  @UseMiddleware(isAdminAuth)
+  async deleteProduct(
+    @Arg("productId", () => Int) productId: number
+  ): Promise<DeleteProductResponse> {
+    const product = await this.productRepository.findOne(productId);
+
+    if (!product) {
+      return { errorMsg: "Product not found" };
+    }
+
+    try {
+      await this.productRepository.remove(product);
+      return { deleted: true };
+    } catch (error) {
+      console.log(error);
+      return { errorMsg: error.message };
     }
   }
 }

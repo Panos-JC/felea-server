@@ -10,3 +10,12 @@ export class CreateProductResponse {
   @Field(() => Product, { nullable: true })
   product?: Product;
 }
+
+@ObjectType()
+export class DeleteProductResponse {
+  @Field(() => String, { nullable: true })
+  errorMsg?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  deleted?: boolean;
+}
