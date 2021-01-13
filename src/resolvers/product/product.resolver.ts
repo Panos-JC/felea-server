@@ -29,6 +29,18 @@ export class ProductResolver {
     return products;
   }
 
+  @Query(() => Product)
+  @UseMiddleware(isAuth)
+  async product(@Arg("productId", () => Int) productId: number) {
+    const product = await this.productRepository.findOne(productId);
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    return product;
+  }
+
   @Mutation(() => CreateProductResponse)
   @UseMiddleware(isAdminAuth)
   async createProduct(
@@ -85,7 +97,10 @@ export class ProductResolver {
       return { deleted: true };
     } catch (error) {
       console.log(error);
-      return { errorMsg: error.message };
+      if (error.code === "23503") {
+        return { errorMsg: "Product in use" };
+      }
+      return { errorMsg: "Something went wrong" };
     }
   }
 }
