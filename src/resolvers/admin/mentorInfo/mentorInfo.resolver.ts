@@ -358,6 +358,7 @@ export class AdminMentorInfoResolver {
     experience.companyName = input.companyName;
     experience.from = input.from;
     experience.untill = input.untill;
+    experience.present = input.present;
     experience.description = input.description;
     experience.industries = [];
 
