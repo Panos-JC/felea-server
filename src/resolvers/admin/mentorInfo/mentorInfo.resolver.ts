@@ -182,6 +182,10 @@ export class AdminMentorInfoResolver {
     mentor.country = options.country;
     mentor.city = options.city;
     mentor.languages = options.languages;
+    mentor.availableDayFrom = options.availableDayFrom;
+    mentor.availableDayUntill = options.availableDayUntill;
+    mentor.availableTimeFrom = options.availableTimeFrom;
+    mentor.availableTimeUntill = options.availableTimeUntill;
 
     await this.mentorRepository.save(mentor);
 
