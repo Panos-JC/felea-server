@@ -20,8 +20,19 @@ export async function send(
   template: string,
   context: any
 ) {
+  // let transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   auth: {
+  //     user: process.env.EMAIL_USER,
+  //     pass: process.env.EMAIL_PASS,
+  //   },
+  // });
+
   let transporter = nodemailer.createTransport({
-    service: "gmail",
+    name: "mail.felea.org",
+    host: "box5526.bluehost.com",
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -42,7 +53,12 @@ export async function send(
     context: context,
   };
 
-  await transporter.sendMail(email);
+  try {
+    await transporter.sendMail(email);
+  } catch (error) {
+    console.log(error);
+  }
+
   // {
   //   from: '"Felea" <infopanostest@gmail.com>', // sender address
   //   to, // list of receivers
