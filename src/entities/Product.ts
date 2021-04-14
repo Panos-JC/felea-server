@@ -39,8 +39,8 @@ export class Product extends BaseEntity {
   @Column()
   description!: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   price!: number;
 
   // created at & updated at

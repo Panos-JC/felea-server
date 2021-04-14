@@ -12,6 +12,6 @@ export class ProductInput {
   descriptionRichText!: string;
   @Field()
   description!: string;
-  @Field()
+  @Field({ nullable: true })
   price!: number;
 }
