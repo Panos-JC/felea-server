@@ -19,7 +19,10 @@ export class DeleteIndividualResolver {
   async deleteIndividual(
     @Arg("individualId", () => Int) individualId: number
   ): Promise<DeleteEntityResponse> {
-    const individual = await this.individualRepository.findOne(individualId);
+    const individual = await this.individualRepository.findOne({
+      where: { id: individualId },
+      relations: ["company"],
+    });
 
     if (!individual) {
       return { errorMsg: "Individual not found", deleted: false };
@@ -33,6 +36,15 @@ export class DeleteIndividualResolver {
 
     if (!user) {
       return { errorMsg: "User not found", deleted: false };
+    }
+
+    // Get company from individual
+    const company = individual.company;
+
+    // If company exists increase remainingAccounts counter
+    if (company) {
+      company.remainingAccounts += 1;
+      company.save();
     }
 
     // delete individual's session requests
